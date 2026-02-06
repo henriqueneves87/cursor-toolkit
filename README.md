@@ -4,22 +4,30 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE
 
 ## O que está incluído
 
-### Skills (7)
+### Skills (11)
 
 | Skill | Descrição |
 |-------|-----------|
 | `code-with-logs` | Logs narrativos com timestamp `[HH:MM:SS]` obrigatório em todo código executável |
 | `create-subagents` | Padrão modular de subagentes Python com early return e logs |
+| `create-documentation` | Estrutura de documentação organizada com anti-dumping e progressive disclosure |
+| `error-handling-patterns` | Padrões de tratamento de erro: early return, erros explícitos, propagação |
+| `testing-patterns` | Padrões AAA (Arrange-Act-Assert), edge cases, testes narrativos |
+| `git-workflow` | Branching, commit messages, PR descriptions, critério de valor |
 | `create-rule` | Meta-skill para criar regras do Cursor (`.cursor/rules/`) |
 | `create-skill` | Meta-skill para criar Agent Skills (`.cursor/skills/`) |
 | `create-subagent` | Meta-skill para criar subagentes do Cursor (`.cursor/agents/`) |
 | `migrate-to-skills` | Converte rules e commands antigos para o formato Skills |
 | `update-cursor-settings` | Modifica configurações do Cursor/VSCode (`settings.json`) |
 
-### Commands (10)
+### Commands (14)
 
 | Command | Descrição |
 |---------|-----------|
+| `apply-conventions` | Checklist obrigatório ANTES de gerar código (valida skills aplicáveis) |
+| `context-boot` | Carrega contexto mínimo do projeto (<=500 tokens) |
+| `context-focus` | Carrega contexto direcionado para tarefa específica (<=900 tokens) |
+| `context-deep` | Leitura cirúrgica de arquivos específicos (<=600 tokens) |
 | `architecture-review` | Auditoria completa do projeto em modo DRY-RUN (não modifica nada) |
 | `audit-response` | Audita a resposta anterior da IA contra as convenções |
 | `checkpoint-and-branch` | Cria checkpoint seguro + branch antes de mudanças estruturais |
@@ -29,9 +37,10 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE
 | `governed-task` | Força execução governada de tarefas grandes (Sequential Thinking) |
 | `help-commands` | Guia prático de quando e por que usar cada command |
 | `optimize-prompt` | Reescreve prompts para máxima clareza (modo HARD STOP) |
+| `summarize-session` | Resume sessão de trabalho para continuidade futura |
 | `update-context` | Atualiza memória longa do projeto (`context.md`) |
 
-### Agents (6)
+### Agents (8)
 
 | Agent | Descrição |
 |-------|-----------|
@@ -40,6 +49,8 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE
 | `context-migration-agent` | Migrations com safety-first (backup, rollback) |
 | `context-refactor-agent` | Refatoração incremental com validação |
 | `code-reviewer` | Revisão de código para qualidade, segurança e manutenibilidade |
+| `debugger` | Diagnóstico sistemático: root cause analysis, fix, verificação |
+| `test-writer` | Criação de testes abrangentes (unit, integration, edge cases) |
 | `migration-applier` | Aplicação de migrations SQL (PostgreSQL/Supabase) |
 
 ### Rules (1)
@@ -155,12 +166,20 @@ cursor-toolkit/
 ├── skills/
 │   ├── code-with-logs/SKILL.md
 │   ├── create-subagents/SKILL.md
+│   ├── create-documentation/SKILL.md
+│   ├── error-handling-patterns/SKILL.md
+│   ├── testing-patterns/SKILL.md
+│   ├── git-workflow/SKILL.md
 │   ├── create-rule/SKILL.md
 │   ├── create-skill/SKILL.md
 │   ├── create-subagent/SKILL.md
 │   ├── migrate-to-skills/SKILL.md
 │   └── update-cursor-settings/SKILL.md
 ├── commands/
+│   ├── apply-conventions.md
+│   ├── context-boot.md
+│   ├── context-focus.md
+│   ├── context-deep.md
 │   ├── architecture-review.md
 │   ├── audit-response.md
 │   ├── checkpoint-and-branch.md
@@ -170,6 +189,7 @@ cursor-toolkit/
 │   ├── governed-task.md
 │   ├── help-commands.md
 │   ├── optimize-prompt.md
+│   ├── summarize-session.md
 │   └── update-context.md
 ├── agents/
 │   ├── context-audit-agent.md
@@ -177,6 +197,8 @@ cursor-toolkit/
 │   ├── context-migration-agent.md
 │   ├── context-refactor-agent.md
 │   ├── code-reviewer.md
+│   ├── debugger.md
+│   ├── test-writer.md
 │   └── migration-applier.md
 └── rules/
     └── ai-conventions-base.md
