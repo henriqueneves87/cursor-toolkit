@@ -1,0 +1,72 @@
+---
+description: Master enforcement rule — garante aplicação automática de skills, commands e agents do cursor-toolkit em todas as conversas
+alwaysApply: true
+---
+
+# Cursor Toolkit — Enforcement Layer
+
+Esta rule é carregada automaticamente em TODA conversa para garantir que as skills, commands e agents do toolkit sejam aplicados corretamente.
+
+## Skills — Aplicação Automática
+
+A IA DEVE aplicar automaticamente as skills abaixo quando detectar o contexto correspondente:
+
+| Contexto | Skill | Trigger |
+|----------|-------|---------|
+| Script Python executável (`main()`, `if __name__`) | `code-with-logs` | Logs com timestamp `[HH:MM:SS]` obrigatórios |
+| Script >200 linhas ou múltiplas etapas | `create-subagents` | Modularizar em subagentes |
+| Criação/atualização de docs | `create-documentation` | Estrutura organizada, anti-dumping |
+| Código com try/except ou I/O | `error-handling-patterns` | Early return, erros explícitos |
+| Criação de testes | `testing-patterns` | AAA, edge cases, nomeação descritiva |
+| Commits, branches, PRs | `git-workflow` | Critério de valor, mensagens padronizadas |
+
+## Postura Obrigatória
+
+1. **Apresentar plano antes de executar** qualquer tarefa não trivial
+2. **Não executar mudanças amplas** sem autorização explícita
+3. **Sequential Thinking** para tarefas com múltiplas etapas
+4. **Logs narrativos** com timestamp em todo código executável
+5. **Erros explícitos** — nunca fallback oculto ou catch silencioso
+
+## Checklist Pré-Geração de Código
+
+Antes de gerar qualquer código executável, validar:
+
+- Script executável? → Aplicar `code-with-logs`
+- Script >200 linhas? → Aplicar `create-subagents`
+- Tem tratamento de erro? → Aplicar `error-handling-patterns`
+- Precisa de testes? → Aplicar `testing-patterns`
+- Plano apresentado? → Obrigatório
+
+## Commands Disponíveis
+
+O usuário pode invocar os seguintes commands:
+
+- `/context-boot` — Carregar contexto mínimo do projeto
+- `/context-focus` — Carregar contexto para tarefa específica
+- `/context-deep` — Leitura cirúrgica de arquivos
+- `/apply-conventions` — Forçar checklist de convenções
+- `/governed-task` — Governança completa para tarefas grandes
+- `/architecture-review` — Auditoria DRY-RUN do projeto
+- `/checkpoint-and-branch` — Checkpoint seguro antes de mudanças
+- `/decision-needed` — Apresentar opções para decisão técnica
+- `/decision-report` — Gerar relatório técnico versionado
+- `/commit-decision` — Avaliar critério de valor para commit
+- `/audit-response` — Auditar resposta anterior
+- `/optimize-prompt` — Reescrever prompt para clareza
+- `/summarize-session` — Resumir sessão de trabalho
+- `/update-context` — Atualizar context.md
+- `/help-commands` — Guia de uso dos commands
+
+## Agents Disponíveis
+
+Delegar automaticamente quando apropriado:
+
+- `debugger` — Erros, bugs, comportamento inesperado
+- `test-writer` — Criação de testes abrangentes
+- `code-reviewer` — Revisão de qualidade e segurança
+- `migration-applier` — Migrations SQL
+- `context-audit-agent` — Auditorias evidence-first
+- `context-feature-agent` — Features spec-first
+- `context-migration-agent` — Migrations safety-first
+- `context-refactor-agent` — Refatoração incremental
