@@ -4,11 +4,12 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE
 
 ## O que está incluído
 
-### Skills (11)
+### Skills (12)
 
 | Skill | Descrição |
 |-------|-----------|
 | `code-with-logs` | Logs narrativos com timestamp `[HH:MM:SS]` obrigatório em todo código executável |
+| `create-execution-plan` | Execution plans otimizados para IA executar tarefas multi-etapas (com template) |
 | `create-subagents` | Padrão modular de subagentes Python com early return e logs |
 | `create-documentation` | Estrutura de documentação organizada com anti-dumping e progressive disclosure |
 | `error-handling-patterns` | Padrões de tratamento de erro: early return, erros explícitos, propagação |
@@ -20,11 +21,12 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE
 | `migrate-to-skills` | Converte rules e commands antigos para o formato Skills |
 | `update-cursor-settings` | Modifica configurações do Cursor/VSCode (`settings.json`) |
 
-### Commands (14)
+### Commands (16)
 
 | Command | Descrição |
 |---------|-----------|
 | `apply-conventions` | Checklist obrigatório ANTES de gerar código (valida skills aplicáveis) |
+| `create-execution-plan` | Gera execution plan otimizado para IA executar tarefas multi-etapas |
 | `context-boot` | Carrega contexto mínimo do projeto (<=500 tokens) |
 | `context-focus` | Carrega contexto direcionado para tarefa específica (<=900 tokens) |
 | `context-deep` | Leitura cirúrgica de arquivos específicos (<=600 tokens) |
@@ -165,6 +167,9 @@ cursor-toolkit/
 ├── install.sh           # Instalador Linux/Mac
 ├── skills/
 │   ├── code-with-logs/SKILL.md
+│   ├── create-execution-plan/
+│   │   ├── SKILL.md
+│   │   └── template.md
 │   ├── create-subagents/SKILL.md
 │   ├── create-documentation/SKILL.md
 │   ├── error-handling-patterns/SKILL.md
@@ -180,6 +185,7 @@ cursor-toolkit/
 │   ├── context-boot.md
 │   ├── context-focus.md
 │   ├── context-deep.md
+│   ├── create-execution-plan.md
 │   ├── architecture-review.md
 │   ├── audit-response.md
 │   ├── checkpoint-and-branch.md
