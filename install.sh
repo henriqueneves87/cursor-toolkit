@@ -40,7 +40,7 @@ if [ ! -d "$CURSOR_DIR" ]; then
     exit 1
 fi
 
-TARGETS=("skills" "commands" "agents")
+TARGETS=("skills" "commands" "agents" "rules")
 
 # --- UNINSTALL ---
 if $UNINSTALL; then

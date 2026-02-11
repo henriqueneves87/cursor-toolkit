@@ -32,6 +32,7 @@ $targets = @(
     @{ Name = "skills";   Src = "$toolkitDir\skills";   Dst = "$cursorDir\skills" }
     @{ Name = "commands"; Src = "$toolkitDir\commands";  Dst = "$cursorDir\commands" }
     @{ Name = "agents";   Src = "$toolkitDir\agents";    Dst = "$cursorDir\agents" }
+    @{ Name = "rules";    Src = "$toolkitDir\rules";    Dst = "$cursorDir\rules" }
 )
 
 # --- UNINSTALL ---

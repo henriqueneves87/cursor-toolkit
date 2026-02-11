@@ -59,6 +59,7 @@ O usuário pode invocar os seguintes commands:
 - `/update-context` — Atualizar context.md
 - `/help-commands` — Guia de uso dos commands
 - `/frontend-dev-boot` — Template de setup padronizado para frontend
+- `/frontend-polish` — Aplicar toast, skeleton, empty states, tokens e estados de forma guiada
 - `/frontend-ux-audit` — Checklist rápido de UX/UI com “cara de produto”
 
 ## Agents Disponíveis
