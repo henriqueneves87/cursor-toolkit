@@ -19,6 +19,7 @@ A IA DEVE aplicar automaticamente as skills abaixo quando detectar o contexto co
 | Código com try/except ou I/O | `error-handling-patterns` | Early return, erros explícitos |
 | Criação de testes | `testing-patterns` | AAA, edge cases, nomeação descritiva |
 | Commits, branches, PRs | `git-workflow` | Critério de valor, mensagens padronizadas |
+| Trabalho de UI/UX em React/Next.js | `frontend-conventions` | Tokens sem hardcode, feedback (toast/skeleton/empty), ícones SVG, a11y mínima |
 
 ## Postura Obrigatória
 
@@ -57,6 +58,8 @@ O usuário pode invocar os seguintes commands:
 - `/summarize-session` — Resumir sessão de trabalho
 - `/update-context` — Atualizar context.md
 - `/help-commands` — Guia de uso dos commands
+- `/frontend-dev-boot` — Template de setup padronizado para frontend
+- `/frontend-ux-audit` — Checklist rápido de UX/UI com “cara de produto”
 
 ## Agents Disponíveis
 
