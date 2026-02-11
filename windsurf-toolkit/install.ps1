@@ -1,5 +1,5 @@
 # windsurf-toolkit install.ps1
-# Cria symlinks do windsurf-toolkit para os diretórios globais do Windsurf
+# Cria symlinks/copia do windsurf-toolkit para os diretorios do Windsurf
 # Requer: Executar como Administrador (para criar symlinks no Windows)
 
 param(
@@ -10,50 +10,55 @@ param(
 
 $ErrorActionPreference = "Stop"
 $toolkitDir = $PSScriptRoot
-$windsurfDir = "$env:USERPROFILE\.windsurf"
+$windsurfSkillsDir = "$env:USERPROFILE\.codeium\windsurf\skills"
+$windsurfWorkspaceDir = "$env:USERPROFILE\.windsurf"
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  windsurf-toolkit — Instalação" -ForegroundColor Cyan
+Write-Host "  windsurf-toolkit - Instalacao" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Toolkit:  $toolkitDir"
-Write-Host "Windsurf: $windsurfDir"
+Write-Host "Toolkit: $toolkitDir"
+Write-Host "Skills:  $windsurfSkillsDir"
+Write-Host "Rules:   $windsurfWorkspaceDir\rules"
 Write-Host ""
 
-# Verificar se o diretório do Windsurf existe
-if (-not (Test-Path $windsurfDir)) {
-    Write-Host "ERRO: Diretório do Windsurf não encontrado: $windsurfDir" -ForegroundColor Red
-    Write-Host "Verifique se o Windsurf está instalado." -ForegroundColor Red
+# Verificar se o diretorio do Windsurf existe
+if (-not (Test-Path $windsurfWorkspaceDir)) {
+    Write-Host "ERRO: Diretorio do Windsurf nao encontrado: $windsurfWorkspaceDir" -ForegroundColor Red
+    Write-Host "Verifique se o Windsurf esta instalado." -ForegroundColor Red
     exit 1
 }
 
+# Criar diretorio de skills se nao existir
+if (-not (Test-Path $windsurfSkillsDir)) {
+    New-Item -ItemType Directory -Path $windsurfSkillsDir -Force | Out-Null
+}
+
 $targets = @(
-    @{ Name = "skills";   Src = "$toolkitDir\skills";   Dst = "$windsurfDir\skills" }
-    @{ Name = "commands"; Src = "$toolkitDir\commands"; Dst = "$windsurfDir\commands" }
-    @{ Name = "agents";   Src = "$toolkitDir\agents";   Dst = "$windsurfDir\agents" }
-    @{ Name = "rules";    Src = "$toolkitDir\rules";    Dst = "$windsurfDir\rules" }
+    @{ Name = "skills";    Src = "$toolkitDir\skills";    Dst = "$windsurfSkillsDir" }
+    @{ Name = "workflows"; Src = "$toolkitDir\workflows"; Dst = "$windsurfWorkspaceDir\workflows" }
+    @{ Name = "rules";     Src = "$toolkitDir\rules";     Dst = "$windsurfWorkspaceDir\rules" }
 )
 
 # --- UNINSTALL ---
 if ($Uninstall) {
-    Write-Host "Removendo instalação..." -ForegroundColor Yellow
+    Write-Host "Removendo instalacao..." -ForegroundColor Yellow
     foreach ($t in $targets) {
         if (Test-Path $t.Dst) {
             $item = Get-Item $t.Dst -Force
             if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-                # É symlink — remover
                 $item.Delete()
                 Write-Host "  Removido symlink: $($t.Name)" -ForegroundColor Green
             } else {
-                Write-Host "  AVISO: $($t.Dst) não é symlink, não removido" -ForegroundColor Yellow
+                Write-Host "  AVISO: $($t.Dst) nao e symlink, nao removido" -ForegroundColor Yellow
             }
         } else {
-            Write-Host "  $($t.Name) — não encontrado, ignorando" -ForegroundColor Gray
+            Write-Host "  $($t.Name) - nao encontrado, ignorando" -ForegroundColor Gray
         }
     }
     Write-Host ""
-    Write-Host "Desinstalação concluída." -ForegroundColor Green
+    Write-Host "Desinstalacao concluida." -ForegroundColor Green
     exit 0
 }
 
@@ -61,45 +66,50 @@ if ($Uninstall) {
 foreach ($t in $targets) {
     Write-Host "Configurando $($t.Name)..." -ForegroundColor White
 
+    # Para skills, copiar conteudo dentro do diretorio
+    if ($t.Name -eq "skills") {
+        if (-not (Test-Path $t.Dst)) {
+            New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
+        }
+        Write-Host "  Copiando skills para: $($t.Dst)" -ForegroundColor Yellow
+        Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
+        Write-Host "  Skills copiados com sucesso" -ForegroundColor Green
+        continue
+    }
+
     if (Test-Path $t.Dst) {
         $existing = Get-Item $t.Dst -Force
         
         if ($existing.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-            # Já é symlink
             if ($Force) {
                 $existing.Delete()
                 Write-Host "  Symlink existente removido (--Force)" -ForegroundColor Yellow
             } else {
-                Write-Host "  Symlink já existe. Use -Force para substituir." -ForegroundColor Yellow
+                Write-Host "  Symlink ja existe. Use -Force para substituir." -ForegroundColor Yellow
                 continue
             }
         } else {
-            # Diretório real existente
             if ($Force) {
-                # Fazer backup
                 $backup = "$($t.Dst)_backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
                 Rename-Item $t.Dst $backup
                 Write-Host "  Backup criado: $backup" -ForegroundColor Yellow
             } elseif ($Copy) {
-                # Modo cópia — copiar arquivos para dentro do diretório existente
-                Write-Host "  Diretório existe. Copiando arquivos..." -ForegroundColor Yellow
+                Write-Host "  Diretorio existe. Copiando arquivos..." -ForegroundColor Yellow
                 Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
                 Write-Host "  Arquivos copiados para $($t.Dst)" -ForegroundColor Green
                 continue
             } else {
-                Write-Host "  Diretório já existe. Use -Force (backup+symlink) ou -Copy (copiar arquivos)" -ForegroundColor Yellow
+                Write-Host "  Diretorio ja existe. Use -Force (backup+symlink) ou -Copy (copiar arquivos)" -ForegroundColor Yellow
                 continue
             }
         }
     }
 
     if ($Copy) {
-        # Modo cópia — criar diretório e copiar
         New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
         Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
         Write-Host "  Copiado para: $($t.Dst)" -ForegroundColor Green
     } else {
-        # Modo symlink (padrão)
         try {
             New-Item -ItemType SymbolicLink -Path $t.Dst -Target $t.Src -Force | Out-Null
             Write-Host "  Symlink criado: $($t.Dst) -> $($t.Src)" -ForegroundColor Green
@@ -115,14 +125,17 @@ foreach ($t in $targets) {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "  Instalação concluída!" -ForegroundColor Green
+Write-Host "  Instalacao concluida!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Opções disponíveis:" -ForegroundColor Gray
-Write-Host "  .\install.ps1              — Instalar (symlinks, requer Admin)" -ForegroundColor Gray
-Write-Host "  .\install.ps1 -Copy        — Instalar (cópia, sem Admin)" -ForegroundColor Gray
-Write-Host "  .\install.ps1 -Force       — Reinstalar (backup do existente)" -ForegroundColor Gray
-Write-Host "  .\install.ps1 -Uninstall   — Remover instalação" -ForegroundColor Gray
+Write-Host "IMPORTANTE: Skills instalados em:" -ForegroundColor Cyan
+Write-Host "  $windsurfSkillsDir" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Opcoes disponiveis:" -ForegroundColor Gray
+Write-Host "  .\install.ps1              - Instalar (symlinks, requer Admin)" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -Copy        - Instalar (copia, sem Admin)" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -Force       - Reinstalar (backup do existente)" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -Uninstall   - Remover instalacao" -ForegroundColor Gray
 Write-Host ""
 Write-Host "Para atualizar (symlinks): git pull" -ForegroundColor Cyan
-Write-Host "Para atualizar (cópia):    git pull; .\install.ps1 -Copy -Force" -ForegroundColor Cyan
+Write-Host "Para atualizar (copia):    git pull; .\install.ps1 -Copy -Force" -ForegroundColor Cyan

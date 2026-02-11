@@ -6,7 +6,7 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Windsurf I
 
 ## O que está incluído
 
-### Skills (14)
+### Skills (13)
 
 | Skill | Descrição |
 |-------|-----------|
@@ -19,14 +19,13 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Windsurf I
 | `git-workflow` | Branching, commit messages, PR descriptions, critério de valor |
 | `create-rule` | Meta-skill para criar regras do Windsurf (`.windsurf/rules/`) |
 | `create-skill` | Meta-skill para criar Agent Skills (`.windsurf/skills/`) |
-| `create-subagent` | Meta-skill para criar subagentes do Windsurf (`.windsurf/agents/`) |
 | `migrate-to-skills` | Converte rules e commands antigos para o formato Skills |
-| `update-windsurf-settings` | Modifica configurações do Windsurf/VSCode (`settings.json`) |
+| `update-cursor-settings` | Modifica configurações do Windsurf/VSCode (`settings.json`) |
 | `frontend-conventions` | Convenções para desenvolvimento frontend robusto e sofisticado |
 
-### Commands (19)
+### Workflows (19)
 
-| Command | Descrição |
+| Workflow | Descrição |
 |---------|-----------|
 | `apply-conventions` | Checklist obrigatório ANTES de gerar código (valida skills aplicáveis) |
 | `create-execution-plan` | Gera execution plan otimizado para IA executar tarefas multi-etapas |
@@ -40,7 +39,7 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Windsurf I
 | `decision-needed` | Lista opções para decisões técnicas, espera escolha do usuário |
 | `decision-report` | Gera relatório técnico versionado para tomada de decisão |
 | `governed-task` | Força execução governada de tarefas grandes (Sequential Thinking) |
-| `help-commands` | Guia prático de quando e por que usar cada command |
+| `help-commands` | Guia prático de quando e por que usar cada workflow |
 | `optimize-prompt` | Reescreve prompts para máxima clareza (modo HARD STOP) |
 | `summarize-session` | Resume sessão de trabalho para continuidade futura |
 | `update-context` | Atualiza memória longa do projeto (`context.md`) |
@@ -48,26 +47,13 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Windsurf I
 | `frontend-polish` | Refinamento e polimento de interfaces frontend |
 | `frontend-ux-audit` | Auditoria de UX e acessibilidade em aplicações frontend |
 
-### Agents (8)
-
-| Agent | Descrição |
-|-------|-----------|
-| `context-audit-agent` | Auditorias com abordagem evidence-first |
-| `context-feature-agent` | Implementação de features com spec-first |
-| `context-migration-agent` | Migrations com safety-first (backup, rollback) |
-| `context-refactor-agent` | Refatoração incremental com validação |
-| `code-reviewer` | Revisão de código para qualidade, segurança e manutenibilidade |
-| `debugger` | Diagnóstico sistemático: root cause analysis, fix, verificação |
-| `test-writer` | Criação de testes abrangentes (unit, integration, edge cases) |
-| `migration-applier` | Aplicação de migrations SQL (PostgreSQL/Supabase) |
-
 ### Rules (3)
 
 | Rule | Descrição |
 |------|-----------|
-| `ai-conventions-base` | Template base de convenções para projetos (adaptar ao seu projeto) |
-| `cursor-toolkit-enforcement` | Regras de enforcement do toolkit |
-| `frontend-robusto-sophisticated` | Convenções para frontend robusto e sofisticado |
+| `ai-conventions-base.md` | Template base de convenções para projetos (adaptar ao seu projeto) |
+| `cursor-toolkit-enforcement.mdc` | Regras de enforcement do toolkit |
+| `frontend-robusto-sophisticated.mdc` | Convenções para frontend robusto e sofisticado |
 
 ---
 
@@ -111,14 +97,15 @@ chmod +x install.sh
 
 ### O que o instalador faz
 
-Cria links simbólicos (ou copia) para os diretórios globais do Windsurf:
+Cria links simbólicos (ou copia) para os diretórios do Windsurf:
 
 ```
-~/.windsurf/skills/   → windsurf-toolkit/skills/
-~/.windsurf/commands/ → windsurf-toolkit/commands/
-~/.windsurf/agents/   → windsurf-toolkit/agents/
-~/.windsurf/rules/    → windsurf-toolkit/rules/
+~/.codeium/windsurf/skills/ → windsurf-toolkit/skills/ (13 skills globais)
+~/.windsurf/workflows/      → windsurf-toolkit/workflows/ (19 workflows)
+~/.windsurf/rules/          → windsurf-toolkit/rules/ (3 rules)
 ```
+
+**Importante:** Skills no Windsurf são instalados em `~/.codeium/windsurf/skills/` (não em `~/.windsurf/skills/`)
 
 ---
 
@@ -149,11 +136,16 @@ cd windsurf-toolkit
 
 ### Skills globais + Skills do projeto
 
-O Windsurf carrega **ambos** — skills globais (`~/.windsurf/skills/`) e do projeto (`.windsurf/skills/`). Sem conflito.
+O Windsurf carrega **ambos** — skills globais (`~/.codeium/windsurf/skills/`) e do projeto (`.windsurf/skills/`). Sem conflito.
 
 **Recomendação:**
 - **windsurf-toolkit** (global): skills genéricas que valem para qualquer projeto
 - **`.windsurf/skills/`** (projeto): skills específicas do seu projeto
+
+### Workflows e Rules
+
+- **Workflows:** Instalados em `~/.windsurf/workflows/` - invoque com `/nome-do-workflow`
+- **Rules:** Instalados em `~/.windsurf/rules/` - aplicados automaticamente pelo Cascade
 
 ### Adaptando as rules
 
@@ -169,18 +161,12 @@ Os arquivos em `rules/` são **templates**. Para usar no seu projeto:
 
 ```
 windsurf-toolkit/
-├── README.md
-├── install.ps1          # Instalador Windows
-├── install.sh           # Instalador Linux/Mac
-├── skills/
-│   ├── code-with-logs/SKILL.md
-│   ├── create-execution-plan/
-│   │   ├── SKILL.md
-│   │   └── template.md
-│   ├── create-subagents/SKILL.md
-│   ├── create-documentation/SKILL.md
-│   ├── error-handling-patterns/SKILL.md
-│   ├── testing-patterns/SKILL.md
+├── README.md (documentação específica)
+├── install.ps1 (instalador Windows)
+├── install.sh (instalador Linux/Mac)
+├── skills/ (13 skills)
+├── workflows/ (19 workflows)
+└── rules/ (3 rules)
 │   ├── git-workflow/SKILL.md
 │   ├── create-rule/SKILL.md
 │   ├── create-skill/SKILL.md
@@ -227,11 +213,17 @@ windsurf-toolkit/
 
 ## Diferenças entre Cursor e Windsurf
 
-O **windsurf-toolkit** é uma adaptação direta do **cursor-toolkit** com as seguintes mudanças:
+O **windsurf-toolkit** é uma adaptação do **cursor-toolkit** com as seguintes mudanças:
 
-- Diretórios de instalação: `~/.windsurf/` ao invés de `~/.cursor/`
-- Referências a "Cursor" substituídas por "Windsurf" onde apropriado
-- Mantém 100% de compatibilidade com as convenções e padrões originais
+**Estrutura de diretórios:**
+- Skills globais: `~/.codeium/windsurf/skills/` (Windsurf) vs `~/.cursor/skills/` (Cursor)
+- Workflows: `~/.windsurf/workflows/` (Windsurf) vs `~/.cursor/commands/` (Cursor)
+- Rules: `~/.windsurf/rules/` (Windsurf) vs `~/.cursor/rules/` (Cursor)
+
+**Conceitos:**
+- Windsurf usa **Workflows** (invocados com `/nome`) ao invés de **Commands**
+- Windsurf não tem conceito de **Agents** - funcionalidade integrada no Cascade
+- Skills seguem o mesmo padrão [agentskills.io](https://agentskills.io) em ambos
 
 ---
 
