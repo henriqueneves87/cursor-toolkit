@@ -1,141 +1,132 @@
 # windsurf-toolkit install.ps1
-# Cria symlinks/copia do windsurf-toolkit para os diretorios do Windsurf
-# Requer: Executar como Administrador (para criar symlinks no Windows)
+# Instala windsurf-toolkit na estrutura correta do Windsurf
 
 param(
     [switch]$Force,
-    [switch]$Copy,
     [switch]$Uninstall
 )
 
 $ErrorActionPreference = "Stop"
 $toolkitDir = $PSScriptRoot
 $windsurfSkillsDir = "$env:USERPROFILE\.codeium\windsurf\skills"
-$windsurfWorkspaceDir = "$env:USERPROFILE\.windsurf"
+$windsurfMemoriesDir = "$env:USERPROFILE\.codeium\windsurf\memories"
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  windsurf-toolkit - Instalacao" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Toolkit: $toolkitDir"
-Write-Host "Skills:  $windsurfSkillsDir"
-Write-Host "Rules:   $windsurfWorkspaceDir\rules"
+Write-Host "Toolkit:  $toolkitDir"
+Write-Host "Skills:   $windsurfSkillsDir"
+Write-Host "Rules:    $windsurfMemoriesDir\global_rules.md"
 Write-Host ""
 
-# Verificar se o diretorio do Windsurf existe
-if (-not (Test-Path $windsurfWorkspaceDir)) {
-    Write-Host "ERRO: Diretorio do Windsurf nao encontrado: $windsurfWorkspaceDir" -ForegroundColor Red
-    Write-Host "Verifique se o Windsurf esta instalado." -ForegroundColor Red
-    exit 1
-}
-
-# Criar diretorio de skills se nao existir
+# Verificar se diretorios existem
 if (-not (Test-Path $windsurfSkillsDir)) {
     New-Item -ItemType Directory -Path $windsurfSkillsDir -Force | Out-Null
 }
-
-$targets = @(
-    @{ Name = "skills";    Src = "$toolkitDir\skills";    Dst = "$windsurfSkillsDir" }
-    @{ Name = "workflows"; Src = "$toolkitDir\workflows"; Dst = "$windsurfWorkspaceDir\workflows" }
-    @{ Name = "rules";     Src = "$toolkitDir\rules";     Dst = "$windsurfWorkspaceDir\rules" }
-)
+if (-not (Test-Path $windsurfMemoriesDir)) {
+    Write-Host "ERRO: Diretorio memories nao encontrado: $windsurfMemoriesDir" -ForegroundColor Red
+    Write-Host "Verifique se o Windsurf esta instalado e foi executado pelo menos uma vez." -ForegroundColor Red
+    exit 1
+}
 
 # --- UNINSTALL ---
 if ($Uninstall) {
     Write-Host "Removendo instalacao..." -ForegroundColor Yellow
-    foreach ($t in $targets) {
-        if (Test-Path $t.Dst) {
-            $item = Get-Item $t.Dst -Force
-            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-                $item.Delete()
-                Write-Host "  Removido symlink: $($t.Name)" -ForegroundColor Green
-            } else {
-                Write-Host "  AVISO: $($t.Dst) nao e symlink, nao removido" -ForegroundColor Yellow
-            }
-        } else {
-            Write-Host "  $($t.Name) - nao encontrado, ignorando" -ForegroundColor Gray
+    
+    # Remover skills
+    if (Test-Path $windsurfSkillsDir) {
+        Get-ChildItem $windsurfSkillsDir -Directory | ForEach-Object {
+            Remove-Item $_.FullName -Recurse -Force
+            Write-Host "  Removido: $($_.Name)" -ForegroundColor Green
         }
     }
+    
+    # Backup global_rules.md antes de remover
+    $globalRulesPath = "$windsurfMemoriesDir\global_rules.md"
+    if (Test-Path $globalRulesPath) {
+        $backup = "$globalRulesPath.backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+        Copy-Item $globalRulesPath $backup
+        Write-Host "  Backup de global_rules.md criado: $backup" -ForegroundColor Yellow
+        Write-Host "  AVISO: global_rules.md nao foi removido (pode conter suas rules)" -ForegroundColor Yellow
+    }
+    
     Write-Host ""
     Write-Host "Desinstalacao concluida." -ForegroundColor Green
     exit 0
 }
 
 # --- INSTALL ---
-foreach ($t in $targets) {
-    Write-Host "Configurando $($t.Name)..." -ForegroundColor White
 
-    # Para skills, copiar conteudo dentro do diretorio
-    if ($t.Name -eq "skills") {
-        if (-not (Test-Path $t.Dst)) {
-            New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
-        }
-        Write-Host "  Copiando skills para: $($t.Dst)" -ForegroundColor Yellow
-        Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-        Write-Host "  Skills copiados com sucesso" -ForegroundColor Green
-        continue
-    }
-
-    if (Test-Path $t.Dst) {
-        $existing = Get-Item $t.Dst -Force
-        
-        if ($existing.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-            if ($Force) {
-                $existing.Delete()
-                Write-Host "  Symlink existente removido (--Force)" -ForegroundColor Yellow
-            } else {
-                Write-Host "  Symlink ja existe. Use -Force para substituir." -ForegroundColor Yellow
-                continue
-            }
+# 1. Instalar Skills
+Write-Host "Instalando skills..." -ForegroundColor White
+$skillsInstalled = 0
+Get-ChildItem "$toolkitDir\skills" -Directory | ForEach-Object {
+    $destPath = "$windsurfSkillsDir\$($_.Name)"
+    if (Test-Path $destPath) {
+        if ($Force) {
+            Remove-Item $destPath -Recurse -Force
+            Copy-Item $_.FullName $destPath -Recurse -Force
+            Write-Host "  Atualizado: $($_.Name)" -ForegroundColor Yellow
         } else {
-            if ($Force) {
-                $backup = "$($t.Dst)_backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-                Rename-Item $t.Dst $backup
-                Write-Host "  Backup criado: $backup" -ForegroundColor Yellow
-            } elseif ($Copy) {
-                Write-Host "  Diretorio existe. Copiando arquivos..." -ForegroundColor Yellow
-                Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-                Write-Host "  Arquivos copiados para $($t.Dst)" -ForegroundColor Green
-                continue
-            } else {
-                Write-Host "  Diretorio ja existe. Use -Force (backup+symlink) ou -Copy (copiar arquivos)" -ForegroundColor Yellow
-                continue
-            }
+            Write-Host "  Ja existe: $($_.Name) (use -Force para atualizar)" -ForegroundColor Gray
         }
-    }
-
-    if ($Copy) {
-        New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
-        Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-        Write-Host "  Copiado para: $($t.Dst)" -ForegroundColor Green
     } else {
-        try {
-            New-Item -ItemType SymbolicLink -Path $t.Dst -Target $t.Src -Force | Out-Null
-            Write-Host "  Symlink criado: $($t.Dst) -> $($t.Src)" -ForegroundColor Green
-        } catch {
-            Write-Host "  ERRO ao criar symlink. Execute como Administrador ou use -Copy" -ForegroundColor Red
-            Write-Host "  Fallback: copiando arquivos..." -ForegroundColor Yellow
-            New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
-            Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-            Write-Host "  Copiado para: $($t.Dst)" -ForegroundColor Green
-        }
+        Copy-Item $_.FullName $destPath -Recurse -Force
+        Write-Host "  Instalado: $($_.Name)" -ForegroundColor Green
+        $skillsInstalled++
     }
 }
 
+# 2. Instalar Global Rules
 Write-Host ""
+Write-Host "Instalando global rules..." -ForegroundColor White
+$globalRulesPath = "$windsurfMemoriesDir\global_rules.md"
+$sourceRules = "$toolkitDir\global_rules.md"
+
+if (Test-Path $globalRulesPath) {
+    if ($Force) {
+        $backup = "$globalRulesPath.backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+        Copy-Item $globalRulesPath $backup
+        Write-Host "  Backup criado: $backup" -ForegroundColor Yellow
+        Copy-Item $sourceRules $globalRulesPath -Force
+        Write-Host "  global_rules.md atualizado" -ForegroundColor Green
+    } else {
+        Write-Host "  global_rules.md ja existe (use -Force para sobrescrever)" -ForegroundColor Yellow
+        Write-Host "  DICA: Voce pode mesclar manualmente o conteudo de:" -ForegroundColor Cyan
+        Write-Host "    $sourceRules" -ForegroundColor Cyan
+    }
+} else {
+    Copy-Item $sourceRules $globalRulesPath -Force
+    Write-Host "  global_rules.md instalado" -ForegroundColor Green
+}
+
+# 3. Informar sobre Workflows
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "  Workflows (nivel projeto)" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Workflows devem ser copiados manualmente para cada projeto:" -ForegroundColor Yellow
+Write-Host "  1. Copie a pasta 'workflows' para .windsurf/workflows/ do seu projeto" -ForegroundColor White
+Write-Host "  2. Invoque com /nome-do-workflow no Cascade" -ForegroundColor White
+Write-Host ""
+Write-Host "Exemplo:" -ForegroundColor Gray
+Write-Host "  cp -r $toolkitDir\workflows seu-projeto\.windsurf\" -ForegroundColor Gray
+Write-Host ""
+
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "  Instalacao concluida!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "IMPORTANTE: Skills instalados em:" -ForegroundColor Cyan
-Write-Host "  $windsurfSkillsDir" -ForegroundColor Cyan
+Write-Host "Instalado:" -ForegroundColor White
+Write-Host "  Skills:       $windsurfSkillsDir" -ForegroundColor White
+Write-Host "  Global Rules: $globalRulesPath" -ForegroundColor White
 Write-Host ""
-Write-Host "Opcoes disponiveis:" -ForegroundColor Gray
-Write-Host "  .\install.ps1              - Instalar (symlinks, requer Admin)" -ForegroundColor Gray
-Write-Host "  .\install.ps1 -Copy        - Instalar (copia, sem Admin)" -ForegroundColor Gray
-Write-Host "  .\install.ps1 -Force       - Reinstalar (backup do existente)" -ForegroundColor Gray
-Write-Host "  .\install.ps1 -Uninstall   - Remover instalacao" -ForegroundColor Gray
+Write-Host "Reinicie o Windsurf para carregar as novas configuracoes." -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Para atualizar (symlinks): git pull" -ForegroundColor Cyan
-Write-Host "Para atualizar (copia):    git pull; .\install.ps1 -Copy -Force" -ForegroundColor Cyan
+Write-Host "Opcoes:" -ForegroundColor Gray
+Write-Host "  .\install.ps1           - Instalar" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -Force    - Reinstalar/Atualizar" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -Uninstall - Remover" -ForegroundColor Gray
