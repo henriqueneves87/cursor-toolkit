@@ -1,6 +1,6 @@
 ---
 name: create-execution-plan
-description: Cria execution plans otimizados para IA executar tarefas multi-etapas. Use quando receber pedido de planejamento, correcao de bug complexo, feature multi-etapas, ou qualquer tarefa que precise de plano antes de executar. Aplica automaticamente ao detectar /create-execution-plan.
+description: Creates optimized execution plans for multi-step tasks. Use for planning requests, complex bugs, multi-step features requiring upfront planning.
 ---
 
 # Create Execution Plan v1.0

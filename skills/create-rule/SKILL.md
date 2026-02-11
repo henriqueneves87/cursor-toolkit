@@ -1,6 +1,6 @@
 ---
 name: create-rule
-description: Create Cursor rules for persistent AI guidance. Use when the user wants to create a rule, add coding standards, set up project conventions, configure file-specific patterns, create RULE.md files, or asks about .cursor/rules/ or AGENTS.md.
+description: Creates Windsurf rules for persistent AI guidance. Use for coding standards, project conventions, file-specific patterns, or AGENTS.md.
 ---
 # Creating Cursor Rules
 
