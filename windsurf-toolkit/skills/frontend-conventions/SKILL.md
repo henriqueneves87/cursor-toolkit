@@ -1,6 +1,6 @@
 ---
 name: frontend-conventions
-description: Enforces robust/sophisticated frontend UX/UI conventions for React/Next.js: consult team component patterns first (e.g. Magic-MCP), use semantic tokens (no hex hardcode), no emoji state icons, consistent feedback (toast/skeleton/empty states), a11y minimum, and incremental changes. Use when editing frontend UI/UX in .ts/.tsx/.css files.
+description: Enforces robust frontend conventions for React/Next.js - semantic tokens, proper feedback (toast/skeleton/empty), SVG icons, a11y minimum, incremental changes
 ---
 
 # Frontend Conventions (robusto/sophisticated)

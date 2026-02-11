@@ -1,6 +1,6 @@
 ---
 name: code-with-logs
-description: Gera código executável com logs narrativos obrigatórios incluindo timestamp [HH:MM:SS]. Use quando criar scripts, testes, jobs, ETLs, migrações, subagentes ou qualquer código executável que precise de logs de progresso com rastreabilidade temporal.
+description: Generates executable code with narrative logs including timestamp [HH:MM:SS]. Use for scripts, tests, jobs, ETLs, migrations requiring progress tracking.
 ---
 
 # Code with Logs v3.0 (Generic)

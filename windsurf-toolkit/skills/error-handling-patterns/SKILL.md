@@ -1,6 +1,6 @@
 ---
 name: error-handling-patterns
-description: Padrões de tratamento de erro com early return, erros explícitos e propagação adequada. Use quando criar código que precisa de tratamento de erro robusto, especialmente scripts, APIs e processamento de dados.
+description: Error handling patterns with early return and explicit errors. Use for robust error handling in scripts, APIs, data processing.
 ---
 
 # Error Handling Patterns
