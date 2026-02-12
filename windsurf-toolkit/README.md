@@ -97,15 +97,23 @@ chmod +x install.sh
 
 ### O que o instalador faz
 
-Cria links simbólicos (ou copia) para os diretórios do Windsurf:
+**Instalação Global (automática):**
 
 ```
-~/.codeium/windsurf/skills/ → windsurf-toolkit/skills/ (13 skills globais)
-~/.windsurf/workflows/      → windsurf-toolkit/workflows/ (19 workflows)
-~/.windsurf/rules/          → windsurf-toolkit/rules/ (3 rules)
+~/.codeium/windsurf/skills/         → 13 skills (instalados globalmente)
+~/.codeium/windsurf/memories/       → global_rules.md (rules globais)
 ```
 
-**Importante:** Skills no Windsurf são instalados em `~/.codeium/windsurf/skills/` (não em `~/.windsurf/skills/`)
+**Workflows (por projeto - manual):**
+
+⚠️ **Workflows NO WINDSURF SÃO POR PROJETO**, não globais. Você deve copiar manualmente para cada projeto:
+
+```bash
+# Para cada projeto onde quiser usar os workflows:
+cp -r windsurf-toolkit/workflows seu-projeto/.windsurf/
+```
+
+Ou use o helper script: `.\install-workflows.ps1 caminho\do\projeto`
 
 ---
 
@@ -134,18 +142,44 @@ cd windsurf-toolkit
 
 ## Uso com projetos
 
-### Skills globais + Skills do projeto
+### Skills (globais)
 
-O Windsurf carrega **ambos** — skills globais (`~/.codeium/windsurf/skills/`) e do projeto (`.windsurf/skills/`). Sem conflito.
+✅ **Instalados automaticamente** em `~/.codeium/windsurf/skills/`
+
+O Windsurf carrega skills globais + skills do projeto (`.windsurf/skills/`) sem conflito.
 
 **Recomendação:**
-- **windsurf-toolkit** (global): skills genéricas que valem para qualquer projeto
+- **windsurf-toolkit** (global): skills genéricas para qualquer projeto
 - **`.windsurf/skills/`** (projeto): skills específicas do seu projeto
 
-### Workflows e Rules
+### Global Rules
 
-- **Workflows:** Instalados em `~/.windsurf/workflows/` - invoque com `/nome-do-workflow`
-- **Rules:** Instalados em `~/.windsurf/rules/` - aplicados automaticamente pelo Cascade
+✅ **Instaladas automaticamente** em `~/.codeium/windsurf/memories/global_rules.md`
+
+Aplicadas em todas as conversas do Windsurf.
+
+### Workflows (por projeto)
+
+⚠️ **Instalação MANUAL por projeto**
+
+Workflows no Windsurf são por projeto, não globais. Para cada projeto:
+
+**Windows:**
+```powershell
+.\install-workflows.ps1 C:\caminho\do\projeto
+```
+
+**Linux/Mac:**
+```bash
+./install-workflows.sh /caminho/do/projeto
+```
+
+**Manual:**
+```bash
+cp -r windsurf-toolkit/workflows seu-projeto/.windsurf/
+```
+
+Depois invoque com `/nome-do-workflow` no Cascade
 
 ### Adaptando as rules
 
