@@ -101,19 +101,11 @@ chmod +x install.sh
 
 ```
 ~/.codeium/windsurf/skills/         → 13 skills (instalados globalmente)
+~/.codeium/windsurf/global_workflows/ → 19 workflows (instalados globalmente)
 ~/.codeium/windsurf/memories/       → global_rules.md (rules globais)
 ```
 
-**Workflows (por projeto - manual):**
-
-⚠️ **Workflows NO WINDSURF SÃO POR PROJETO**, não globais. Você deve copiar manualmente para cada projeto:
-
-```bash
-# Para cada projeto onde quiser usar os workflows:
-cp -r windsurf-toolkit/workflows seu-projeto/.windsurf/
-```
-
-Ou use o helper script: `.\install-workflows.ps1 caminho\do\projeto`
+✅ **TUDO INSTALADO GLOBALMENTE!** Skills, workflows e rules ficam disponíveis em todos os projetos.
 
 ---
 
@@ -166,28 +158,22 @@ Workflows no Windsurf são por projeto, não globais. Para cada projeto:
 
 **Windows:**
 ```powershell
-.\install-workflows.ps1 C:\caminho\do\projeto
+.\install-workfglobais\caminho\do\projeto
 ```
+✅dsautmaticamne em `~/.c`deium/windsu`f/global_worbash/`
 
-**Linux/Mac:**
-```bash
+oklwsagaambéms!Disponíveis em qulque.
 ./install-workflows.sh /caminho/do/projeto
-```
+``Use  Cacade com
 
-**Manual:**
+/aome*do-*
 ```bash
 cp -r windsurf-toolkit/workflows seu-projeto/.windsurf/
-```
-
-Depois invoque com `/nome-do-workflow` no Cascade
-
-### Adaptando as rules
-
-Os arquivos em `rules/` são **templates**. Para usar no seu projeto:
-
-1. Copie para `.windsurf/rules/` do seu projeto
-2. Adapte as seções conforme necessário
-3. Adicione regras específicas do projeto
+``Eemplos
+- ecoosextvboqt` - Carregau contextoodínomo kf ow` no 
+-  /rplyconvento`  Apca checist de cnvençõe
+-`/create-exctionlan` - Gera excui  lan Atdmizada
+- esfroptíndfpclish` a Adici nad toast, soepetrn,eemptytts
 
 ---
 

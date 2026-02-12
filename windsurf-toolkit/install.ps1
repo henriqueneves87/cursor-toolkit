@@ -9,6 +9,7 @@ param(
 $ErrorActionPreference = "Stop"
 $toolkitDir = $PSScriptRoot
 $windsurfSkillsDir = "$env:USERPROFILE\.codeium\windsurf\skills"
+$windsurfGlobalWorkflowsDir = "$env:USERPROFILE\.codeium\windsurf\global_workflows"
 $windsurfMemoriesDir = "$env:USERPROFILE\.codeium\windsurf\memories"
 
 Write-Host ""
@@ -25,6 +26,9 @@ Write-Host ""
 if (-not (Test-Path $windsurfSkillsDir)) {
     New-Item -ItemType Directory -Path $windsurfSkillsDir -Force | Out-Null
 }
+if (-not (Test-Path $windsurfGlobalWorkflowsDir)) {
+    New-Item -ItemType Directory -Path $windsurfGlobalWorkflowsDir -Force | Out-Null
+}
 if (-not (Test-Path $windsurfMemoriesDir)) {
     Write-Host "ERRO: Diretorio memories nao encontrado: $windsurfMemoriesDir" -ForegroundColor Red
     Write-Host "Verifique se o Windsurf esta instalado e foi executado pelo menos uma vez." -ForegroundColor Red
@@ -39,6 +43,14 @@ if ($Uninstall) {
     if (Test-Path $windsurfSkillsDir) {
         Get-ChildItem $windsurfSkillsDir -Directory | ForEach-Object {
             Remove-Item $_.FullName -Recurse -Force
+            Write-Host "  Removido: $($_.Name)" -ForegroundColor Green
+        }
+    }
+    
+    # Remover workflows
+    if (Test-Path $windsurfGlobalWorkflowsDir) {
+        Get-ChildItem $windsurfGlobalWorkflowsDir -File | ForEach-Object {
+            Remove-Item $_.FullName -Force
             Write-Host "  Removido: $($_.Name)" -ForegroundColor Green
         }
     }
@@ -79,7 +91,27 @@ Get-ChildItem "$toolkitDir\skills" -Directory | ForEach-Object {
     }
 }
 
-# 2. Instalar Global Rules
+# 2. Instalar Workflows Globais
+Write-Host ""
+Write-Host "Instalando workflows globais..." -ForegroundColor White
+$workflowsInstalled = 0
+Get-ChildItem "$toolkitDir\workflows" -File | ForEach-Object {
+    $destPath = "$windsurfGlobalWorkflowsDir\$($_.Name)"
+    if (Test-Path $destPath) {
+        if ($Force) {
+            Copy-Item $_.FullName $destPath -Force
+            Write-Host "  Atualizado: $($_.Name)" -ForegroundColor Yellow
+        } else {
+            Write-Host "  Ja existe: $($_.Name) (use -Force para atualizar)" -ForegroundColor Gray
+        }
+    } else {
+        Copy-Item $_.FullName $destPath -Force
+        Write-Host "  Instalado: $($_.Name)" -ForegroundColor Green
+        $workflowsInstalled++
+    }
+}
+
+# 3. Instalar Global Rules
 Write-Host ""
 Write-Host "Instalando global rules..." -ForegroundColor White
 $globalRulesPath = "$windsurfMemoriesDir\global_rules.md"
@@ -102,26 +134,14 @@ if (Test-Path $globalRulesPath) {
     Write-Host "  global_rules.md instalado" -ForegroundColor Green
 }
 
-# 3. Informar sobre Workflows
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  Workflows (nivel projeto)" -ForegroundColor Cyan
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Workflows devem ser copiados manualmente para cada projeto:" -ForegroundColor Yellow
-Write-Host "  1. Copie a pasta 'workflows' para .windsurf/workflows/ do seu projeto" -ForegroundColor White
-Write-Host "  2. Invoque com /nome-do-workflow no Cascade" -ForegroundColor White
-Write-Host ""
-Write-Host "Exemplo:" -ForegroundColor Gray
-Write-Host "  cp -r $toolkitDir\workflows seu-projeto\.windsurf\" -ForegroundColor Gray
-Write-Host ""
-
 Write-Host "========================================" -ForegroundColor Green
 Write-Host "  Instalacao concluida!" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Instalado:" -ForegroundColor White
 Write-Host "  Skills:       $windsurfSkillsDir" -ForegroundColor White
+Write-Host "  Workflows:    $windsurfGlobalWorkflowsDir" -ForegroundColor White
 Write-Host "  Global Rules: $globalRulesPath" -ForegroundColor White
 Write-Host ""
 Write-Host "Reinicie o Windsurf para carregar as novas configuracoes." -ForegroundColor Cyan
@@ -130,3 +150,5 @@ Write-Host "Opcoes:" -ForegroundColor Gray
 Write-Host "  .\install.ps1           - Instalar" -ForegroundColor Gray
 Write-Host "  .\install.ps1 -Force    - Reinstalar/Atualizar" -ForegroundColor Gray
 Write-Host "  .\install.ps1 -Uninstall - Remover" -ForegroundColor Gray
+Write-Host "Use os workflows no Cascade com: /nome-do-workflow" -ForegroundColor Cyan
+Write-Host ""
