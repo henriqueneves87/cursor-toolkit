@@ -71,6 +71,49 @@ Aplicar a skill `create-execution-plan` e gerar o documento com TODAS as secoes 
 - **PERGUNTAR:** "Posso executar o plano?"
 - **NAO executar sem confirmacao explicita**
 
+### 6. Gerar Prompt Universal de execucao
+
+APOS salvar o execution plan, gerar AUTOMATICAMENTE o arquivo de prompt universal:
+- Salvar em `docs/prompts_execucao_{nome_snake_case}.md`
+- Seguir o modelo de `docs/prompts_execucao_saphiro.md` (se existir no projeto)
+
+**Estrutura obrigatoria do prompt universal:**
+
+```markdown
+# Prompts de Execucao — [Nome do Plano]
+
+> **Runbook operacional.** Uma tarefa por conversa. Copie, cole, execute, finalize.
+
+## PROMPT UNIVERSAL (copie para CADA tarefa)
+
+[bloco de codigo com prompt autocontido contendo:]
+1. Caminho do execution plan
+2. Instrucao para identificar proxima tarefa pendente
+3. Caminho do projeto e referencias (somente leitura)
+4. Contexto critico do projeto (schema, logger, exceptions, convencoes)
+5. Contexto especifico do plano (decisoes tecnicas, formatos, regras de negocio)
+6. Instrucoes pos-conclusao (marcar concluido, commitar, push, mostrar resultado)
+
+## Tabela de tarefas
+[tabela com: tarefa, descricao, complexidade, depende]
+
+## Ordem de execucao
+[notacao de blocos]
+
+## Exemplo pratico de fluxo
+[conversa 1: prompt → T1, conversa 2: prompt → T2, etc.]
+
+## Estimativa
+[tabela com: bloco, tarefas, conversas]
+```
+
+**Regras do prompt universal:**
+- O prompt deve ser AUTOCONTIDO — colar numa conversa nova e a IA executa sem contexto previo
+- Incluir contexto critico inline (nao depender de context-boot)
+- Incluir convencoes especificas do plano (ex: formato de webhook, nomes de campo)
+- Uma tarefa por conversa, um commit por tarefa
+- Ao concluir: marcar tarefa como concluido, atualizar cabecalho, commitar, push
+
 ---
 
 ## Regras para Notas para IA

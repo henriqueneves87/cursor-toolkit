@@ -166,7 +166,50 @@ Ao gerar o plano, referenciar skills aplicaveis nas Notas para IA:
 6. **Definir ordem** — grafo de dependencias
 7. **Definir metricas** — como saber que deu certo
 8. **Salvar** — em `docs/00_overview/execution_plans/{nome}.md`
-9. **Apresentar ao usuario** — resumo + pedir confirmacao antes de executar
+9. **Gerar prompt universal** — em `docs/prompts_execucao_{nome}.md` (ver secao abaixo)
+10. **Apresentar ao usuario** — resumo + pedir confirmacao antes de executar
+
+## Prompt Universal (OBRIGATORIO)
+
+Apos salvar o execution plan, SEMPRE gerar o arquivo de prompt universal. Este arquivo permite que o usuario cole o prompt em conversas novas e a IA execute cada tarefa de forma autonoma.
+
+**Salvar em:** `docs/prompts_execucao_{nome_snake_case}.md`
+**Modelo de referencia:** `docs/prompts_execucao_saphiro.md` (se existir no projeto)
+
+### Estrutura obrigatoria
+
+```markdown
+# Prompts de Execucao — [Nome do Plano]
+
+> **Runbook operacional.** Uma tarefa por conversa.
+
+## PROMPT UNIVERSAL (copie para CADA tarefa)
+
+[bloco de codigo com prompt autocontido]
+
+## Tabela de tarefas
+## Ordem de execucao
+## Exemplo pratico de fluxo
+## Estimativa
+```
+
+### Conteudo do prompt autocontido
+
+O bloco do PROMPT UNIVERSAL DEVE incluir inline (sem depender de context-boot):
+
+1. **Caminho do execution plan** — para a IA ler as Notas para IA da tarefa
+2. **Instrucao de identificacao** — encontrar proxima tarefa pendente
+3. **Caminhos do projeto** — workspace, referencias somente leitura
+4. **Contexto critico** — schema, logger, exceptions, convencoes obrigatorias
+5. **Contexto especifico do plano** — decisoes tecnicas, formatos, regras de negocio que a IA precisa para executar sem ambiguidade
+6. **Instrucoes pos-conclusao** — marcar concluido, commitar, push, mostrar resultado
+
+### Regras
+
+- O prompt DEVE ser autocontido — colar numa conversa nova basta
+- Uma tarefa por conversa, um commit por tarefa
+- Nao depender de context-boot ou context.md (incluir contexto inline)
+- Incluir convencoes especificas que impactam a execucao
 
 ## Anti-patterns (PROIBIDOS)
 
