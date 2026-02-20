@@ -1,9 +1,9 @@
 ---
 name: create-execution-plan
-description: Creates optimized execution plans for multi-step tasks. Use for planning requests, complex bugs, multi-step features requiring upfront planning.
+description: Cria execution plans otimizados para IA executar tarefas multi-etapas com suporte a mapeamento de codebase grande e execucao paralela via subagentes. Use quando receber pedido de planejamento, correcao de bug complexo, feature multi-etapas, refatoracao de codigo grande, ou qualquer tarefa que precise de plano antes de executar. Aplica automaticamente ao detectar /create-execution-plan.
 ---
 
-# Create Execution Plan v1.0
+# Create Execution Plan v2.0
 
 ## APLICACAO AUTOMATICA OBRIGATORIA
 
@@ -13,8 +13,16 @@ description: Creates optimized execution plans for multi-step tasks. Use for pla
 - Correcao de bug complexo (multiplos arquivos/camadas)
 - Feature com mais de 3 tarefas
 - Tarefa que envolve backend + frontend + banco
+- Refatoracao de codebase grande (>500 linhas ou >10 arquivos)
 - Comando `/create-execution-plan`
 - Contexto de `/governed-task` que requer planejamento
+
+## Quando NAO usar
+
+- Tarefa com 1-2 passos triviais (ex: renomear variavel, ajustar texto)
+- Hotfix de uma linha com causa raiz obvia
+- Tarefas puramente exploratorias (usar `_scratchpad`)
+- Ajuste de configuracao ou .env
 
 ## O que e um Execution Plan
 
@@ -22,7 +30,86 @@ Documento estruturado que permite a uma IA executar tarefas complexas **sem ambi
 
 **Principio:** A IA que executa o plano pode ser DIFERENTE da que criou. O plano deve ser autocontido.
 
-## Anatomia Obrigatoria
+---
+
+## Fase 0 — Mapeamento de Codebase (OBRIGATORIO para codigo grande)
+
+### Quando ativar
+
+- Codebase desconhecido ou parcialmente conhecido pela IA
+- Refatoracao que envolve >10 arquivos ou >500 linhas
+- O usuario fornece codigo grande e pede plano
+- A IA nao tem contexto suficiente para planejar com confianca
+
+### Problema que resolve
+
+Ler todo o codigo na mesma conversa **estoura o contexto**. A Fase 0 constroi um mapa leve do codebase ANTES de planejar, sem colar codigo inteiro.
+
+### Estrategia: Mapeamento Progressivo com Subagentes
+
+**Passo 1 — Estrutura superficial (agente pai)**
+
+O agente pai coleta a arvore de diretorios e identifica dominios:
+
+```
+Ler estrutura de pastas (ls/tree superficial)
+Identificar dominios: src/services/, src/api/, src/core/, etc.
+Listar arquivos por dominio (nome + tamanho em linhas)
+```
+
+Resultado: mapa de dominios com lista de arquivos (SEM ler conteudo).
+
+**Passo 2 — Mapeamento profundo por dominio (subagentes paralelos)**
+
+Disparar ate 4 subagentes simultaneos via Task tool, cada um mapeando um dominio:
+
+```
+Task(subagent_type="explore", prompt="Mapeie src/services/: para cada arquivo, liste classes, funcoes publicas, dependencias entre modulos, e um resumo de 1 linha do proposito. NAO retorne codigo completo, apenas assinaturas e resumos.")
+
+Task(subagent_type="explore", prompt="Mapeie src/core/: ...")
+
+Task(subagent_type="explore", prompt="Mapeie src/api/: ...")
+```
+
+Cada subagente retorna um **resumo compacto** (~50-100 linhas), nao o codigo inteiro.
+
+**Passo 3 — Consolidacao (agente pai)**
+
+O agente pai recebe os resumos e consolida em um **Mapa do Codebase**:
+
+```markdown
+## Mapa do Codebase
+
+### src/services/ (4 arquivos, ~800 linhas)
+- payment_service.py: ProcessPayment, RefundPayment. Depende de: core/exceptions, adapters/bmp
+- pix_service.py: CreateQR, Transfer, Refund. Depende de: adapters/bmp, core/config
+...
+
+### src/core/ (3 arquivos, ~200 linhas)
+- config.py: Settings via env vars
+- exceptions.py: BmpApiError, AccountNotFoundError, PersistenceError
+...
+
+### Dependencias entre dominios
+services → core (config, exceptions)
+services → adapters (bmp)
+api → services (injecao)
+```
+
+**Passo 4 — Leitura cirurgica**
+
+Com o mapa em maos, o agente pai le APENAS os arquivos relevantes para a tarefa (nao o codebase inteiro).
+
+### Resultado da Fase 0
+
+O mapa e incluido na secao "Contexto / Diagnostico" do execution plan. Ele permite:
+- Planejar tarefas com caminhos exatos
+- Identificar dependencias entre arquivos
+- Saber o que pode ser paralelizado (arquivos independentes)
+
+---
+
+## Anatomia Obrigatoria do Execution Plan
 
 Todo execution plan DEVE conter estas secoes, nesta ordem:
 
@@ -32,7 +119,9 @@ Todo execution plan DEVE conter estas secoes, nesta ordem:
 # Plano: [Nome descritivo em snake_case]
 
 Fase: [N ou Hotfix]
+Versao: 1.0
 Status: NAO INICIADO | EM ANDAMENTO | CONCLUIDO
+Modo de execucao: MANUAL | ORQUESTRADO | HIBRIDO
 Ultima atualizacao: YYYY-MM-DD
 Pre-requisitos: [lista ou "nenhum"]
 ```
@@ -41,18 +130,22 @@ Pre-requisitos: [lista ou "nenhum"]
 
 O resultado esperado ao concluir o plano. Sem jargao, direto.
 
-### 3. Diagnostico (OBRIGATORIO para bugs/hotfixes)
+### 3. Diagnostico / Contexto
 
-Secao que documenta a causa raiz com **evidencias concretas**:
+**Para bugs/hotfixes (OBRIGATORIO com evidencias):**
 
 - **Logs reais** (copiar trecho relevante do erro)
 - **Queries** (resultado de consultas ao banco)
 - **Codigo** (trecho exato onde o problema ocorre, com arquivo e linha)
 - **Mapa de dados** (tabela mostrando o que existe vs o que falta)
 
-**Regra:** Diagnostico sem evidencia e achismo. SEMPRE incluir evidencia.
+**Para features/refatoracoes:**
 
-Para features novas (nao bugs), esta secao pode ser substituida por "Contexto" com a situacao atual.
+- Situacao atual (o que existe)
+- Mapa do codebase (se Fase 0 foi executada)
+- Regras de negocio relevantes
+
+**Regra:** Diagnostico sem evidencia e achismo. SEMPRE incluir evidencia para bugs.
 
 ### 4. Decisoes tecnicas
 
@@ -69,8 +162,10 @@ Cada tarefa DEVE conter TODOS os campos abaixo:
 ### T1 -- [Nome claro da tarefa]
 
 - **Complexidade:** minima | baixa | media | alta
+- **Estimativa:** ~15min | ~1h | ~2-3h
 - **Arquivos:** [lista exata de arquivos criados/modificados]
 - **Depende de:** nenhuma | T0 | T1, T2
+- **Conflita com:** nenhuma | T3 (mesmo arquivo)
 - **Status:** pendente | em andamento | concluido
 - **Criterio de aceite:** [frase que confirma que esta pronto]
 - **Notas para IA:**
@@ -81,27 +176,48 @@ Cada tarefa DEVE conter TODOS os campos abaixo:
    - Linha ou bloco de codigo a alterar (quando aplicavel)
    - Snippet "antes" e "depois" (quando a alteracao e pontual)
    - Restricoes especificas desta tarefa
-   - Qualquer ID, constante ou convencao necessaria]
+   - Qualquer ID, constante ou convencao necessaria
+   - Regras de negocio que impactam esta tarefa]
 ```
 
+**Campo "Conflita com":** Indica tarefas que tocam o MESMO arquivo. Tarefas que conflitam NAO podem rodar em paralelo, mesmo que nao tenham dependencia logica.
+
 **Regra de ouro das Notas para IA:** Se uma IA diferente pegar apenas esta tarefa, ela DEVE conseguir executar sem ler o resto do plano.
+
+**Exemplo de Notas para IA (boa):**
+
+```markdown
+- **Arquivo:** `src/services/pix_service.py` (linha ~45, metodo `create_transfer`)
+- **Antes:** `data = {"valor": amount, "chave": key}`
+- **Depois:** `data = {"valor": amount, "chave": key, "codigoOperacaoCliente": reference_id}`
+- **Restricao:** campo e opcional; se nao informado, gerar UUID v4
+- **Constante:** `from uuid import uuid4`
+- **Convencao:** valores monetarios em Decimal, NAO centavos
+```
 
 ### 6. Ordem de execucao
 
 ```markdown
 ## Ordem de execucao
 
-Bloco A (CRITICO):
-  T1 + T2 + T3 (paralelo) → DEPLOY
+Bloco A (CRITICO — paralelo):
+  T1 + T2 + T3
 
-Bloco B (ESTRUTURAL):
-  T4 → T5 → T6
+Bloco B (SEQUENCIAL):
+  T4 → T5
+
+Bloco C (paralelo):
+  T6 + T7
 
 Sequencia completa:
-  [T1 + T2 + T3] → [T4] → [T5 + T6] → deploy final
+  [T1 + T2 + T3] → [T4 → T5] → [T6 + T7] → verificacao final
 ```
 
-Usar notacao: `+` para paralelo, `→` para sequencial, blocos nomeados para agrupamento.
+Notacao:
+- `+` = paralelo (podem rodar simultaneamente)
+- `→` = sequencial (depende do anterior)
+- `[ ]` = bloco nomeado
+- Tarefas com "Conflita com" NUNCA ficam no mesmo grupo paralelo
 
 ### 7. Notas para IA (globais)
 
@@ -124,6 +240,80 @@ Lista de itens verificaveis que confirmam conclusao:
 
 **Regra:** Metricas devem ser verificaveis (testavel, consultavel, observavel). "Funcionar" NAO e metrica.
 
+### 9. Rollback / Contingencia
+
+**Obrigatorio para:** migrations, alteracoes em producao, mudancas de schema.
+**Opcional para:** features novas, refatoracoes internas.
+
+```markdown
+## Rollback
+
+- **Backup necessario antes:** [sim/nao — o que fazer]
+- **Como reverter:** [passos de rollback]
+- **Ponto de nao-retorno:** [a partir de qual tarefa nao da para reverter facilmente]
+```
+
+---
+
+## Modos de Execucao
+
+### Modo MANUAL (padrao)
+
+Uma tarefa por conversa. O usuario cola o prompt universal, a IA executa uma tarefa, commita, e o usuario abre nova conversa para a proxima.
+
+**Quando usar:** Tarefas que precisam de revisao humana entre etapas, ou quando o usuario quer controle fino.
+
+### Modo ORQUESTRADO (novo v2.0)
+
+A IA orquestradora dispara subagentes paralelos para blocos de tarefas independentes, tudo na mesma conversa do Cursor.
+
+**Quando usar:** Plano tem blocos paralelos claros, tarefas nao conflitam em arquivos, e o usuario quer velocidade.
+
+**Como funciona:**
+
+```
+1. IA orquestradora le o plano e identifica o proximo bloco
+2. Para blocos paralelos: dispara ate 4 subagentes via Task tool
+3. Cada subagente recebe prompt autocontido com:
+   - Notas para IA da tarefa especifica
+   - Notas globais do plano
+   - Instrucoes de conclusao (marcar status, NAO commitar)
+4. IA orquestradora aguarda todos os subagentes
+5. Consolida resultados, resolve conflitos se houver
+6. Commita o bloco inteiro com mensagem descritiva
+7. Avanca para o proximo bloco
+```
+
+**Regras do modo orquestrado:**
+- Maximo 4 subagentes simultaneos (limite do Cursor)
+- Tarefas que conflitam em arquivo NUNCA rodam em paralelo
+- Subagentes NAO commitam — apenas o orquestrador commita
+- Se um subagente falhar, o orquestrador para e reporta
+
+**Template de prompt para subagente:**
+
+```
+Execute a tarefa {TN} do plano {caminho_do_plano}.
+
+Notas para IA da tarefa:
+{notas_da_tarefa}
+
+Contexto global:
+{notas_globais}
+
+Regras:
+- Execute SOMENTE esta tarefa
+- NAO commite (o orquestrador fara isso)
+- Marque a tarefa como "concluido" no plano
+- Retorne: arquivos criados/alterados e resultado
+```
+
+### Modo HIBRIDO
+
+Blocos paralelos executados em modo orquestrado, blocos sequenciais em modo manual. Util quando parte do plano precisa de revisao humana e parte pode ser automatizada.
+
+---
+
 ## Sub-planos
 
 ### Quando usar
@@ -145,6 +335,96 @@ Plano principal referencia sub-planos por arquivo:
 
 Cada sub-plano segue o mesmo formato (cabecalho, tarefas, notas para IA, metricas).
 
+---
+
+## Prompt Universal (OBRIGATORIO)
+
+Apos salvar o execution plan, SEMPRE gerar o arquivo de prompt universal.
+
+**Salvar em:** `docs/prompts_execucao_{nome_snake_case}.md`
+**Modelo de referencia:** `docs/prompts_execucao_saphiro.md` (se existir no projeto)
+
+### Estrutura obrigatoria
+
+```markdown
+# Prompts de Execucao — [Nome do Plano]
+
+> **Runbook operacional.** Copie, cole, execute, finalize.
+> Ultima atualizacao: YYYY-MM-DD
+
+## Como funciona
+
+### Modo Manual (uma tarefa por conversa)
+1. Copie o PROMPT MANUAL
+2. Cole numa conversa nova
+3. A IA executa uma tarefa, commita, mostra resultado
+4. Nova conversa para a proxima tarefa
+
+### Modo Orquestrado (blocos paralelos automaticos)
+1. Copie o PROMPT ORQUESTRADO
+2. Cole numa conversa nova
+3. A IA dispara subagentes para o proximo bloco paralelo
+4. Ao concluir o bloco, commita tudo e mostra resultado
+5. Repita para o proximo bloco
+
+## PROMPT MANUAL (uma tarefa por conversa)
+
+[bloco de codigo com prompt autocontido]
+
+## PROMPT ORQUESTRADO (blocos paralelos)
+
+[bloco de codigo com prompt autocontido para orquestracao]
+
+## Tabela de tarefas
+## Ordem de execucao
+## Mapa de conflitos de arquivo
+## Exemplo pratico de fluxo
+## Estimativa
+```
+
+### Conteudo do prompt autocontido (ambos os modos)
+
+O bloco DEVE incluir inline (sem depender de context-boot):
+
+1. **Caminho do execution plan** — para a IA ler as Notas para IA da tarefa
+2. **Instrucao de identificacao** — encontrar proxima tarefa/bloco pendente
+3. **Caminhos do projeto** — workspace, referencias somente leitura
+4. **Contexto critico** — schema, logger, exceptions, convencoes obrigatorias
+5. **Contexto especifico do plano** — decisoes tecnicas, formatos de dados, regras de negocio, mapeamento de campos, constantes/IDs
+6. **Instrucoes pos-conclusao** — marcar concluido, commitar, push, mostrar resultado
+
+### Conteudo adicional do prompt orquestrado
+
+Alem dos itens acima, o prompt orquestrado DEVE incluir:
+
+7. **Instrucao de paralelismo** — identificar bloco paralelo e disparar subagentes via Task tool
+8. **Template de prompt para subagente** — com placeholders para notas da tarefa
+9. **Regra de conflito** — tarefas que compartilham arquivo rodam sequencialmente
+10. **Regra de commit** — subagentes NAO commitam, orquestrador commita o bloco
+
+### Mapa de conflitos de arquivo
+
+Tabela que mostra quais tarefas tocam os mesmos arquivos:
+
+```markdown
+| Arquivo | Tarefas que alteram |
+|---------|---------------------|
+| src/services/pix_service.py | T4, T5 |
+| src/api/routes.py | T3, T6 |
+```
+
+Tarefas que aparecem na mesma linha NAO podem rodar em paralelo.
+
+### Regras do prompt universal
+
+- O prompt DEVE ser autocontido — colar numa conversa nova basta
+- Nao depender de context-boot ou context.md (incluir contexto inline)
+- Incluir convencoes especificas que impactam a execucao
+- Modo manual: uma tarefa por conversa, um commit por tarefa
+- Modo orquestrado: um bloco por conversa, um commit por bloco
+
+---
+
 ## Integracao com Skills
 
 Ao gerar o plano, referenciar skills aplicaveis nas Notas para IA:
@@ -155,36 +435,50 @@ Ao gerar o plano, referenciar skills aplicaveis nas Notas para IA:
 | Script >200 linhas ou multi-etapas | `create-subagents` |
 | Documentacao | `create-documentation` |
 | Migration SQL | Padrao Validacao → Aplicacao → Verificacao |
+| Tratamento de erros | `error-handling-patterns` |
+
+---
 
 ## Workflow de Criacao
 
-1. **Ler contexto** — context.md ou context-boot do projeto
-2. **Analisar pedido** — entender escopo e tipo (bug, feature, refactor)
-3. **Coletar evidencias** — logs, queries, codigo (OBRIGATORIO para bugs)
-4. **Gerar diagnostico** — causa raiz documentada
-5. **Planejar tarefas** — T1..TN com Notas para IA detalhadas
-6. **Definir ordem** — grafo de dependencias
-7. **Definir metricas** — como saber que deu certo
-8. **Salvar** — em `docs/00_overview/execution_plans/{nome}.md`
-9. **Apresentar ao usuario** — resumo + pedir confirmacao antes de executar
+1. **Avaliar escopo** — codebase grande? → Ativar Fase 0 (Mapeamento)
+2. **Fase 0 (se aplicavel)** — mapear codebase com subagentes paralelos
+3. **Ler contexto** — context.md ou context-boot do projeto
+4. **Analisar pedido** — entender escopo e tipo (bug, feature, refactor, migracao)
+5. **Coletar evidencias** — logs, queries, codigo (OBRIGATORIO para bugs)
+6. **Gerar diagnostico** — causa raiz documentada (ou contexto para features)
+7. **Planejar tarefas** — T1..TN com Notas para IA detalhadas
+8. **Mapear conflitos** — quais tarefas tocam os mesmos arquivos?
+9. **Definir ordem** — grafo de dependencias + blocos paralelos
+10. **Escolher modo** — manual, orquestrado ou hibrido
+11. **Definir metricas** — como saber que deu certo
+12. **Definir rollback** — como reverter se der errado (quando aplicavel)
+13. **Salvar** — em `docs/00_overview/execution_plans/{nome}.md`
+14. **Gerar prompt universal** — em `docs/prompts_execucao_{nome}.md`
+15. **Apresentar ao usuario** — resumo + pedir confirmacao antes de executar
+16. **NAO executar sem confirmacao explicita**
+
+---
 
 ## Anti-patterns (PROIBIDOS)
 
 - Tarefa sem "Notas para IA" (IA nao sabe o que fazer)
 - Plano de bug sem diagnostico com evidencia
 - Dependencias implicitas (T3 precisa de T1 mas nao declara)
+- Conflitos de arquivo nao mapeados (T2 e T4 editam mesmo arquivo mas estao em bloco paralelo)
 - Metricas genericas ("funcionar", "ficar bom")
 - Tarefas vagas ("melhorar o codigo")
 - Plano com mais de 10 tarefas sem sub-planos
 - Notas para IA sem caminhos de arquivo
 - Snippets de codigo sem indicar onde inserir (antes/depois de qual bloco)
+- Tentar ler codebase inteiro sem Fase 0 (estoura contexto)
+- Subagentes paralelos editando o mesmo arquivo (conflito de escrita)
 
-## Template
-
-Para template completo com exemplos, ver [template.md](template.md).
+---
 
 ## Regra Final
 
 Plano sem contexto e promessa vazia.
 Tarefa sem "Notas para IA" e tarefa que vai falhar.
+Fase 0 economiza contexto. Modo orquestrado economiza tempo.
 **Execution plan e contrato entre quem planeja e quem executa.**

@@ -1,15 +1,15 @@
 # create-execution-plan — Gerar Execution Plan Otimizado para IA
 
-Versao: 1.0
+Versao: 2.0
 Tipo: Command
 Uso: Manual (invocado pelo usuario)
-Escopo: Planejamento de tarefas multi-etapas, correcoes de bug, features, refatoracoes
+Escopo: Planejamento de tarefas multi-etapas, correcoes de bug, features, refatoracoes, mapeamento de codebase grande
 
 ---
 
 ## Objetivo
 
-Gerar um execution plan estruturado e detalhado que qualquer IA consiga executar sem ambiguidade. O plano e salvo em `docs/00_overview/execution_plans/` e segue o formato padrao da skill `create-execution-plan`.
+Gerar um execution plan estruturado e detalhado que qualquer IA consiga executar sem ambiguidade, com suporte a mapeamento de codebase grande (Fase 0) e execucao paralela via subagentes (modo orquestrado). O plano e salvo em `docs/00_overview/execution_plans/` e segue o formato padrao da skill `create-execution-plan` v2.0.
 
 ---
 
@@ -19,28 +19,47 @@ Gerar um execution plan estruturado e detalhado que qualquer IA consiga executar
 /create-execution-plan [descricao da tarefa]
 ```
 
+Variantes:
+
+```
+/create-execution-plan --map [descricao]     → Forca Fase 0 (mapeamento de codebase)
+/create-execution-plan --parallel [descricao] → Forca modo orquestrado
+```
+
 ---
 
 ## Comportamento OBRIGATORIO
 
-Ao receber este comando, a IA DEVE:
+Ao receber este comando, a IA DEVE aplicar a skill `create-execution-plan` v2.0 e seguir este fluxo:
 
-### 1. Carregar contexto do projeto
+### 1. Avaliar escopo e decidir Fase 0
+
+| Situacao | Fase 0? |
+|----------|---------|
+| Codebase desconhecido ou >10 arquivos envolvidos | SIM |
+| Refatoracao de codigo grande (>500 linhas) | SIM |
+| Flag `--map` presente | SIM |
+| Bug pontual com arquivos conhecidos | NAO |
+| Feature pequena com contexto claro | NAO |
+
+Se Fase 0 ativada: executar mapeamento progressivo com subagentes (ver skill).
+
+### 2. Carregar contexto do projeto
 
 - Ler `docs/00_overview/context.md` (se existir)
 - Se nao existir, executar context-boot minimo (estrutura + stack + estado)
 - Identificar: stack, convencoes, banco, deploy
 
-### 2. Classificar o tipo de tarefa
+### 3. Classificar o tipo de tarefa
 
 | Tipo | Requer diagnostico? | Foco |
 |------|---------------------|------|
 | Bug/Hotfix | SIM (com evidencias) | Causa raiz + correcao |
 | Feature | NAO (contexto basta) | Especificacao + implementacao |
-| Refatoracao | PARCIAL (estado atual) | Antes/depois + criterio |
+| Refatoracao | PARCIAL (estado atual + Fase 0) | Antes/depois + criterio |
 | Migracao | SIM (estado banco) | Validacao + aplicacao + verificacao |
 
-### 3. Coletar evidencias (para bugs)
+### 4. Coletar evidencias (para bugs)
 
 ANTES de planejar, a IA DEVE:
 
@@ -51,83 +70,50 @@ ANTES de planejar, a IA DEVE:
 
 **NUNCA pular esta etapa para bugs. Plano sem diagnostico e achismo.**
 
-### 4. Gerar o plano
+### 5. Gerar o plano
 
 Aplicar a skill `create-execution-plan` e gerar o documento com TODAS as secoes obrigatorias:
 
-1. Cabecalho (fase, status, pre-requisitos)
+1. Cabecalho (fase, versao, status, modo de execucao, pre-requisitos)
 2. Objetivo (1-2 frases)
-3. Diagnostico (com evidencias, para bugs)
+3. Diagnostico/Contexto (com evidencias para bugs, mapa do codebase para refatoracoes)
 4. Decisoes tecnicas (tabela)
-5. Tarefas T1..TN (com Notas para IA detalhadas)
-6. Ordem de execucao (grafo de dependencias)
+5. Tarefas T1..TN (com Notas para IA detalhadas, estimativa, campo "Conflita com")
+6. Ordem de execucao (grafo de dependencias com blocos paralelos)
 7. Notas para IA globais (IDs, convencoes, restricoes)
 8. Metricas de sucesso (verificaveis)
+9. Rollback/Contingencia (quando aplicavel)
 
-### 5. Salvar e apresentar
+### 6. Escolher modo de execucao
+
+| Criterio | Modo |
+|----------|------|
+| Tarefas precisam de revisao humana entre etapas | MANUAL |
+| Blocos paralelos claros, sem conflito de arquivo | ORQUESTRADO |
+| Mix: parte precisa revisao, parte pode ser automatizada | HIBRIDO |
+| Flag `--parallel` presente | ORQUESTRADO |
+| Padrao (sem flag) | MANUAL |
+
+### 7. Salvar e apresentar
 
 - Salvar em `docs/00_overview/execution_plans/{nome_snake_case}.md`
-- Apresentar resumo ao usuario (tabela de tarefas + ordem)
-- **PERGUNTAR:** "Posso executar o plano?"
+- Apresentar resumo ao usuario:
+  - Tabela de tarefas com estimativas
+  - Ordem de execucao (blocos paralelos destacados)
+  - Mapa de conflitos de arquivo
+  - Modo de execucao escolhido
+- **PERGUNTAR:** "Posso executar o plano? Modo: [MANUAL/ORQUESTRADO/HIBRIDO]"
 - **NAO executar sem confirmacao explicita**
 
-### 6. Gerar Prompt Universal de execucao
+### 8. Gerar Prompt Universal de execucao
 
 APOS salvar o execution plan, gerar AUTOMATICAMENTE o arquivo de prompt universal:
+
 - Salvar em `docs/prompts_execucao_{nome_snake_case}.md`
 - Seguir o modelo de `docs/prompts_execucao_saphiro.md` (se existir no projeto)
-
-**Estrutura obrigatoria do prompt universal:**
-
-```markdown
-# Prompts de Execucao — [Nome do Plano]
-
-> **Runbook operacional.** Uma tarefa por conversa. Copie, cole, execute, finalize.
-
-## PROMPT UNIVERSAL (copie para CADA tarefa)
-
-[bloco de codigo com prompt autocontido contendo:]
-1. Caminho do execution plan
-2. Instrucao para identificar proxima tarefa pendente
-3. Caminho do projeto e referencias (somente leitura)
-4. Contexto critico do projeto (schema, logger, exceptions, convencoes)
-5. Contexto especifico do plano (decisoes tecnicas, formatos, regras de negocio)
-6. Instrucoes pos-conclusao (marcar concluido, commitar, push, mostrar resultado)
-
-## Tabela de tarefas
-[tabela com: tarefa, descricao, complexidade, depende]
-
-## Ordem de execucao
-[notacao de blocos]
-
-## Exemplo pratico de fluxo
-[conversa 1: prompt → T1, conversa 2: prompt → T2, etc.]
-
-## Estimativa
-[tabela com: bloco, tarefas, conversas]
-```
-
-**Regras do prompt universal:**
-- O prompt deve ser AUTOCONTIDO — colar numa conversa nova e a IA executa sem contexto previo
-- Incluir contexto critico inline (nao depender de context-boot)
-- Incluir convencoes especificas do plano (ex: formato de webhook, nomes de campo)
-- Uma tarefa por conversa, um commit por tarefa
-- Ao concluir: marcar tarefa como concluido, atualizar cabecalho, commitar, push
-
----
-
-## Regras para Notas para IA
-
-As "Notas para IA" de cada tarefa DEVEM incluir:
-
-- Caminho exato do arquivo (ex: `src/services/payment_service.py`)
-- Numero de linha ou bloco de referencia (quando possivel)
-- Snippet de codigo "antes" e "depois" (para alteracoes pontuais)
-- IDs e constantes necessarias
-- Restricoes especificas da tarefa
-- Convencoes do projeto que afetam a tarefa
-
-**Teste mental:** Se uma IA DIFERENTE pegar apenas uma tarefa isolada, ela deve conseguir executar sem ler o resto do plano.
+- Incluir AMBOS os prompts: manual e orquestrado
+- Incluir mapa de conflitos de arquivo
+- Ver estrutura completa na skill `create-execution-plan` v2.0
 
 ---
 
@@ -141,6 +127,7 @@ Ao gerar tarefas, referenciar skills aplicaveis:
 | Script >200 linhas | `create-subagents` |
 | Migration SQL | Padrao Validacao → Aplicacao → Verificacao |
 | Documentacao | `create-documentation` |
+| Tratamento de erros | `error-handling-patterns` |
 
 ---
 
@@ -154,7 +141,9 @@ Este command pode ser combinado com:
 
 ---
 
-## Exemplo de uso
+## Exemplos de uso
+
+### Bug com diagnostico
 
 ```
 /create-execution-plan corrigir erros de pagamento no checkout que aparecem sequencialmente
@@ -162,7 +151,23 @@ Este command pode ser combinado com:
 [usuario cola logs de erro]
 ```
 
-**Resultado esperado:** Plano com diagnostico (mapa de campos faltando), tarefas com snippets exatos, ordem de execucao, metricas de sucesso.
+**Resultado:** Plano com diagnostico (mapa de campos faltando), tarefas com snippets exatos, ordem de execucao, metricas de sucesso. Modo manual.
+
+### Refatoracao de codebase grande
+
+```
+/create-execution-plan --map refatorar modulo de pagamentos para separar responsabilidades
+```
+
+**Resultado:** Fase 0 ativada (mapeamento com subagentes), plano com mapa do codebase, tarefas com antes/depois, blocos paralelos. Modo orquestrado.
+
+### Feature com execucao paralela
+
+```
+/create-execution-plan --parallel implementar modulo de boletos com registro, consulta, cancelamento e impressao
+```
+
+**Resultado:** Plano com tarefas independentes em blocos paralelos, prompt orquestrado para subagentes. Modo orquestrado.
 
 ---
 
@@ -170,6 +175,7 @@ Este command pode ser combinado com:
 
 Plano bom economiza horas de debug.
 Plano ruim gera retrabalho.
+Fase 0 economiza contexto. Modo orquestrado economiza tempo.
 **Investir 10 minutos no plano salva 2 horas na execucao.**
 
 --- End Command ---

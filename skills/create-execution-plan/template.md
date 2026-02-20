@@ -1,7 +1,9 @@
 # Plano: [NOME_DESCRITIVO]
 
 Fase: [N | Hotfix]
+Versao: 1.0
 Status: NAO INICIADO | EM ANDAMENTO | CONCLUIDO
+Modo de execucao: MANUAL | ORQUESTRADO | HIBRIDO
 Ultima atualizacao: YYYY-MM-DD
 Pre-requisitos: [lista ou "nenhum"]
 
@@ -13,13 +15,13 @@ Pre-requisitos: [lista ou "nenhum"]
 
 ---
 
-## Diagnostico (obrigatorio para bugs/hotfixes)
+## Diagnostico / Contexto
 
-### Causa raiz
+### Para bugs/hotfixes:
+
+**Causa raiz:**
 
 [Descricao clara e concisa da causa raiz]
-
-### Evidencias
 
 **Logs:**
 ```
@@ -38,6 +40,20 @@ Arquivo: [caminho/arquivo.py], linhas [N-M]
 [trecho do codigo com o problema]
 ```
 
+### Para features/refatoracoes:
+
+**Situacao atual:**
+
+[O que existe hoje]
+
+**Mapa do codebase (se Fase 0 foi executada):**
+
+[Resumo consolidado dos dominios, arquivos, dependencias]
+
+**Regras de negocio relevantes:**
+
+[Regras que impactam o plano]
+
 ---
 
 ## Decisoes tecnicas
@@ -53,8 +69,10 @@ Arquivo: [caminho/arquivo.py], linhas [N-M]
 ### T1 -- [Nome da tarefa]
 
 - **Complexidade:** baixa | media | alta
+- **Estimativa:** ~15min | ~1h | ~2-3h
 - **Arquivos:** `[caminho/arquivo1.py]`, `[caminho/arquivo2.ts]`
 - **Depende de:** nenhuma
+- **Conflita com:** nenhuma
 - **Status:** pendente
 - **Criterio de aceite:** [frase verificavel]
 - **Notas para IA:**
@@ -77,13 +95,18 @@ Arquivo: [caminho/arquivo.py], linhas [N-M]
   - [restricao 1]
   - [restricao 2]
 
+  **Regras de negocio:**
+  - [regra que impacta esta tarefa]
+
 ---
 
 ### T2 -- [Nome da tarefa]
 
 - **Complexidade:** [nivel]
+- **Estimativa:** [tempo]
 - **Arquivos:** `[caminho/arquivo.ext]`
 - **Depende de:** T1
+- **Conflita com:** nenhuma
 - **Status:** pendente
 - **Criterio de aceite:** [frase verificavel]
 - **Notas para IA:**
@@ -96,14 +119,24 @@ Arquivo: [caminho/arquivo.py], linhas [N-M]
 
 ```
 Bloco A ([descricao]):
-  T1 + T2 (paralelo) → T3
+  T1 + T2 (paralelo)
 
 Bloco B ([descricao]):
-  T4 → T5
+  T3 → T4
 
 Sequencia completa:
-  [Bloco A] → [Bloco B] → deploy
+  [Bloco A] → [Bloco B] → verificacao final
 ```
+
+---
+
+## Mapa de conflitos de arquivo
+
+| Arquivo | Tarefas que alteram |
+|---------|---------------------|
+| [caminho/arquivo.py] | T1, T3 |
+
+Tarefas na mesma linha NAO podem rodar em paralelo.
 
 ---
 
@@ -122,3 +155,11 @@ Sequencia completa:
 - [Metrica verificavel 1]
 - [Metrica verificavel 2]
 - [Metrica verificavel 3]
+
+---
+
+## Rollback / Contingencia
+
+- **Backup necessario antes:** [sim/nao — o que fazer]
+- **Como reverter:** [passos de rollback]
+- **Ponto de nao-retorno:** [a partir de qual tarefa nao da para reverter facilmente]
