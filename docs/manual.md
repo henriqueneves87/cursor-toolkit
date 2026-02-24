@@ -19,32 +19,32 @@ O AI Coding Toolkit é um conjunto de **commands, skills, rules e agents** que t
    ```bash
    git clone https://github.com/henriqueneves87/ai-coding-toolkit.git
    ```
-2. No Cursor, vá em **Settings → Cursor Settings → Rules**
-3. Adicione as 3 rules de `rules/` como User Rules:
-   - `ai-conventions-compact.md` — postura da IA, classificação de tarefas, commits
-   - `skills-auto-apply.md` — tabela de triggers automáticos
-   - `project-specific-template.md` — copie e adapte para cada projeto
-4. Os **skills** em `skills/` são detectados automaticamente pelo Cursor se estiverem em `.cursor/skills/` do projeto ou do usuário.
-5. Os **commands** em `commands/` ficam disponíveis via `/` no chat.
+2. **Rules** — vá em **Settings → Cursor Settings → Rules** e adicione como User Rules:
+   - `rules/ai-conventions-compact.md` — postura, tarefas, commits
+   - `rules/skills-auto-apply.md` — triggers automáticos
+   - `rules/project-specific-template.md` — copie e adapte por projeto
+3. **Skills** — copie a pasta `skills/` para `~/.cursor/skills/` (global) ou `.cursor/skills/` no projeto:
+   ```powershell
+   # Global (vale para todos os projetos)
+   Copy-Item -Recurse skills\* "$env:USERPROFILE\.cursor\skills\" -Force
+   ```
+4. **Commands** — copie a pasta `commands/` para `.cursor/commands/` no projeto:
+   ```powershell
+   Copy-Item -Recurse commands\* ".cursor\commands\" -Force
+   ```
+   Os commands ficam disponíveis via `/` no chat do Cursor.
 
 ### Windsurf
 
 1. Clone o repositório
-2. Copie `windsurf-toolkit/` para o projeto alvo
-3. Execute o instalador:
-   ```bash
-   cd windsurf-toolkit && ./install.sh /caminho/do/projeto
-   ```
-4. Skills e workflows são copiados para `.windsurf/` do projeto
+2. Execute: `cd windsurf-toolkit && .\install.ps1` (ou `./install.sh` no Linux/Mac)
+3. Skills, workflows e rules são copiados para `~/.codeium/windsurf/`
 
 ### Trae
 
 1. Clone o repositório
-2. Execute o instalador:
-   ```bash
-   cd trae-toolkit && ./install.sh /caminho/do/projeto
-   ```
-3. O arquivo `project_rules.md` é copiado para `.trae/` do projeto (Trae usa arquivo único)
+2. Execute: `cd trae-toolkit && .\install.ps1` (ou `./install.sh` no Linux/Mac)
+3. O `project_rules.md` compilado é copiado para `.trae/` do projeto
 
 ---
 
