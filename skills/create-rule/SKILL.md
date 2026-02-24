@@ -1,6 +1,7 @@
 ---
 name: create-rule
 description: Creates Windsurf rules for persistent AI guidance. Use for coding standards, project conventions, file-specific patterns, or AGENTS.md.
+disable-model-invocation: true
 ---
 # Creating Cursor Rules
 

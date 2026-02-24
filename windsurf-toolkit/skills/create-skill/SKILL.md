@@ -1,6 +1,7 @@
 ---
 name: create-skill
 description: Guides creation of Agent Skills. Use when creating new skills or asking about SKILL.md format and best practices.
+disable-model-invocation: true
 ---
 # Creating Skills in Cursor
 

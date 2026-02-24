@@ -1,6 +1,7 @@
 ---
 name: update-cursor-settings
 description: Modifies Windsurf/VSCode settings.json. Use for editor preferences, themes, formatting, keybindings, or any settings changes.
+disable-model-invocation: true
 ---
 # Updating Cursor Settings
 
