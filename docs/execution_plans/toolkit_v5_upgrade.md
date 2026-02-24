@@ -2,7 +2,7 @@
 
 Fase: Evolução do toolkit v4.4 → v5.0
 Versao: 1.0
-Status: BLOCO B CONCLUIDO
+Status: BLOCO C CONCLUIDO
 Modo de execucao: MANUAL (uma tarefa por conversa)
 Ultima atualizacao: 2026-02-24
 Pre-requisitos: Repo cursor-toolkit clonado em C:\Users\User\cursor-toolkit. Decisoes aprovadas (DR_029).
@@ -145,7 +145,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** 10 arquivos em `commands/` e `windsurf-toolkit/workflows/`
 - **Depende de:** T1, T2
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** 10 commands removidos do repo, tanto em commands/ quanto em windsurf-toolkit/workflows/
 - **Notas para IA:**
 
@@ -253,7 +253,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `commands/help-commands.md`, `windsurf-toolkit/workflows/help-commands.md`
 - **Depende de:** T3 (precisa saber quais commands ficaram)
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** help-commands lista exatamente os 11 commands ativos, sem mencionar os aposentados
 - **Notas para IA:**
 
@@ -286,7 +286,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `trae-toolkit/` (NOVO: README.md, install.ps1, install.sh, project_rules.md)
 - **Depende de:** T4 (precisa das rules consolidadas)
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** trae-toolkit/ com instalador que copia project_rules.md para .trae/ do projeto alvo
 - **Notas para IA:**
 
