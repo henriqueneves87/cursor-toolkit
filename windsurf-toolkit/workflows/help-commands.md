@@ -1,131 +1,130 @@
-# help-commands
+# /help-commands
 
-# help-commands — GUIA PRÁTICO DE USO DOS COMMANDS NO CURSOR
-
-Versão: 1.1  
-Tipo: Command  
-Uso: Manual (invocado pelo usuário)
-
-## Objetivo
-
-Este comando existe para responder **quando e por que usar cada command**,  
-especialmente nos **pontos onde o Cursor costuma falhar sozinho**.
-
-Ele **não executa tarefas**, **não gera código** e **não toma decisões**.  
-Serve apenas como **guia rápido e assertivo**.
+Guia de referencia rapida dos 11 commands ativos do AI Coding Toolkit v5.0.
 
 ---
 
-## Como usar
+## Comandos Essenciais (uso frequente)
 
-Digite apenas:
+### /project-init
+**O que faz:** Bootstrap completo de projeto novo — cria `docs/00_overview/context.md`, `roadmap.md`, toda a arvore de pastas numeradas (`00_overview/` ate `07_changelog/`, `_scratchpad/`, `execution_plans/`) e arquivos de arquitetura.
 
-help-commands
+**Quando usar:** Inicio de qualquer projeto novo ou quando o projeto carece de estrutura documental.
 
-A IA deve responder **somente com explicações resumidas**, focadas em **uso prático no Cursor**.
-
----
-
-## Regra mental principal
-
-> Use commands quando quiser **forçar comportamento**,  
-> não quando quiser apenas **gerar código**.
+**Quando o Cursor falha sem ele:** A IA trabalha sem contexto, repete perguntas sobre o projeto, nao sabe o estado atual, nao tem onde registrar decisoes. Cada sessao comeca do zero.
 
 ---
 
-## Commands disponíveis e quando usar
+### /context-boot
+**O que faz:** Carrega o contexto minimo do projeto no inicio da sessao — le `context.md`, `roadmap.md` e lista de tarefas pendentes. Orienta a IA sobre o estado atual sem desperdicar tokens.
 
-### governed-task
+**Quando usar:** Inicio de toda sessao de trabalho.
 
-- quando usar:
-  - tarefas grandes
-  - problemas com múltiplas etapas
-  - criação de pipelines ou sistemas
-  - arquitetura ou mudanças estruturais
-- quando o Cursor falha:
-  - resolve tudo de uma vez
-  - não divide em etapas
-  - não atualiza docs ou roadmap
-- o que força:
-  - sequential thinking
-  - execução por etapas
-  - governança completa
+**Quando o Cursor falha sem ele:** A IA ignora o que ja foi decidido, repropoe solucoes descartadas, perde continuidade entre sessoes.
 
 ---
 
-### code-with-logs
+### /apply-conventions
+**O que faz:** Executa checklist pre-geracao de codigo — verifica se as skills aplicaveis estao sendo usadas (logs, erros, testes, subagentes), se o plano foi apresentado, se nao ha hardcode.
 
-- quando usar:
-  - scripts
-  - testes longos
-  - jobs, ETLs, migrações
-  - qualquer rotina que "fica só com barrinha piscando"
-- quando o Cursor falha:
-  - execução silenciosa
-  - sem noção de progresso
-  - impossível saber se travou
-- o que força:
-  - logs narrativos
-  - progresso visível
-  - tempo estimado total
-  - tempo restante por etapa
+**Quando usar:** Antes de gerar qualquer codigo relevante.
+
+**Quando o Cursor falha sem ele:** Codigo gerado sem logs, sem tratamento de erro, sem plano apresentado. Violacoes silenciosas das convencoes.
 
 ---
 
-### decision-needed
+### /update-context
+**O que faz:** Atualiza `docs/00_overview/context.md` com o avanco real da sessao — decisoes tomadas, estado do sistema, proximo passo.
 
-- quando usar:
-  - trade-offs técnicos
-  - escolhas arquiteturais
-  - decisões irreversíveis
-- quando o Cursor falha:
-  - decide sozinho
-  - já escreve código sem perguntar
-- o que força:
-  - comparação de opções
-  - prós e contras
-  - nenhuma decisão automática
+**Quando usar:** Ao concluir uma etapa relevante ou ao final da sessao.
+
+**Quando o Cursor falha sem ele:** O context.md fica desatualizado. Proximas sessoes partem de estado incorreto.
 
 ---
 
-### audit-response
+### /create-execution-plan
+**O que faz:** Cria um plano de execucao estruturado para tarefas multi-etapas — decomposicao em blocos, dependencias, criterios de aceite, notas para IA, ordem de execucao.
 
-- quando usar:
-  - resposta parece errada ou incompleta
-  - violação de convenção
-  - suspeita de refatoração indevida
-- quando o Cursor falha:
-  - não revisa a própria resposta
-- o que força:
-  - auditoria da resposta anterior
-  - correção pontual
-  - sem recomeçar tudo
+**Quando usar:** Qualquer tarefa com 3+ etapas, refatoracao de codigo grande, features complexas, bugs com causa raiz desconhecida.
+
+**Quando o Cursor falha sem ele:** A IA executa tudo de uma vez sem plano, mistura etapas, nao registra decisoes intermediarias, gera codigo amplo sem autorizacao.
 
 ---
 
-### commit-decision
+### /decision-needed
+**O que faz:** Para a execucao e apresenta opcoes tecnicas com trade-offs para decisao humana — formato estruturado com contexto, opcoes, impactos e recomendacao.
 
-- quando usar:
-  - dúvida se algo deve virar commit
-  - após testes exploratórios
-  - após scripts temporários
-- quando o Cursor falha:
-  - sugere commit para tudo
-- o que força:
-  - critério de valor
-  - decisão consciente de versionamento
+**Quando usar:** Qualquer bifurcacao tecnica relevante (arquitetura, stack, abordagem de dados, seguranca).
+
+**Quando o Cursor falha sem ele:** A IA escolhe por conta propria, frequentemente a opcao mais simples ou comum, sem considerar restricoes do projeto.
 
 ---
 
-## Regra final
+### /checkpoint-and-branch
+**O que faz:** Cria checkpoint seguro antes de mudancas estruturais — verifica estado do repo, cria branch, documenta o ponto de retorno.
 
-Commands não são burocracia.  
-São **freios, trilhos e proteção contra automatismos da IA**.
+**Quando usar:** Antes de refatoracoes amplas, migracoes, mudancas de schema, qualquer operacao dificil de reverter.
 
-Se você não quer que a IA:
-- resolva tudo de uma vez
-- decida por você
-- esconda progresso
-- polua o git
+**Quando o Cursor falha sem ele:** Mudancas destrutivas sem ponto de rollback. Trabalho perdido em caso de erro.
 
-Use o command adequado.
+---
+
+## Comandos Situacionais (menos frequentes)
+
+### /architecture-review
+**O que faz:** Auditoria DRY-RUN do projeto — mapeia duplicacoes, inconsistencias, violacoes de convencao, debito tecnico. Apenas leitura, sem alteracoes.
+
+**Quando usar:** Mensalmente ou antes de uma refatoracao grande.
+
+**Quando o Cursor falha sem ele:** Debito tecnico acumula silenciosamente. Refatoracoes parciais sem visao do todo.
+
+---
+
+### /decision-report
+**O que faz:** Gera relatorio tecnico versionado de uma decisao — contexto, alternativas consideradas, justificativa, riscos, data. Salvo em `docs/05_decisions/reports/`.
+
+**Quando usar:** Decisoes arquiteturais relevantes que precisam de rastreabilidade.
+
+**Quando o Cursor falha sem ele:** Decisoes importantes ficam apenas na cabeca do desenvolvedor ou em historico de chat efemero.
+
+---
+
+### /summarize-session
+**O que faz:** Gera resumo estruturado da sessao — o que foi feito, decisoes tomadas, pendencias, proximos passos. Serve como insumo para `/update-context`.
+
+**Quando usar:** Ao encerrar uma sessao longa ou ao trocar de contexto.
+
+**Quando o Cursor falha sem ele:** Trabalho da sessao nao e documentado. Proxima sessao precisa reconstruir o que foi feito.
+
+---
+
+### /help-commands
+**O que faz:** Exibe este guia.
+
+**Quando usar:** Quando precisar lembrar qual command usar em cada situacao.
+
+---
+
+## Referencia Rapida
+
+| Command | Frequencia | Momento |
+|---------|------------|---------|
+| `/project-init` | Uma vez | Inicio do projeto |
+| `/context-boot` | Toda sessao | Inicio da sessao |
+| `/apply-conventions` | Frequente | Antes de gerar codigo |
+| `/update-context` | Frequente | Fim de etapa / sessao |
+| `/create-execution-plan` | Moderado | Tarefas com 3+ etapas |
+| `/decision-needed` | Moderado | Bifurcacoes tecnicas |
+| `/checkpoint-and-branch` | Moderado | Antes de mudancas estruturais |
+| `/architecture-review` | Mensal | Auditoria proativa |
+| `/decision-report` | Ocasional | Decisoes com rastreabilidade |
+| `/summarize-session` | Ocasional | Encerramento de sessao longa |
+| `/help-commands` | Ocasional | Referencia |
+
+---
+
+## Ver tambem
+
+- `docs/manual.md` — Manual completo do toolkit (instalacao, fluxos, anti-patterns)
+- `skills/` — Skills aplicadas automaticamente pela IA
+- `rules/` — Rules de convencao carregadas em toda sessao
