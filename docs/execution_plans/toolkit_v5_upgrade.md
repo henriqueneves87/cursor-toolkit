@@ -2,7 +2,7 @@
 
 Fase: Evolução do toolkit v4.4 → v5.0
 Versao: 1.0
-Status: NAO INICIADO
+Status: BLOCO A CONCLUIDO
 Modo de execucao: MANUAL (uma tarefa por conversa)
 Ultima atualizacao: 2026-02-24
 Pre-requisitos: Repo cursor-toolkit clonado em C:\Users\User\cursor-toolkit. Decisoes aprovadas (DR_029).
@@ -68,7 +68,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `commands/project-init.md` (NOVO)
 - **Depende de:** nenhuma
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** Command cria context.md, roadmap.md, overview.md, conventions.md, integrations.md e toda a arvore de pastas numeradas
 - **Notas para IA:**
 
@@ -182,7 +182,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `rules/ai-conventions-base.md` (reescrever), `rules/cursor-toolkit-enforcement.mdc` (reescrever), `rules/frontend-robusto-sophisticated.mdc` (deletar)
 - **Depende de:** nenhuma
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** 3 rules no total, ~200 tokens no total (vs ~800 atuais)
 - **Notas para IA:**
 
@@ -218,7 +218,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** 5 SKILL.md em `skills/` e `windsurf-toolkit/skills/`
 - **Depende de:** nenhuma
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** 5 skills com `disable-model-invocation: true` no frontmatter
 - **Notas para IA:**
 
