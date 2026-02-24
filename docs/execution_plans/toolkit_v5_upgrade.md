@@ -2,7 +2,7 @@
 
 Fase: Evolução do toolkit v4.4 → v5.0
 Versao: 1.0
-Status: BLOCO D CONCLUIDO
+Status: BLOCO E CONCLUIDO (T10 pendente acao manual)
 Modo de execucao: MANUAL (uma tarefa por conversa)
 Ultima atualizacao: 2026-02-24
 Pre-requisitos: Repo cursor-toolkit clonado em C:\Users\User\cursor-toolkit. Decisoes aprovadas (DR_029).
@@ -366,7 +366,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `README.md`
 - **Depende de:** T1, T2, T3, T4, T7
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** README reflete estado v5.0: 11 commands, 8+5 skills, 8 agents, 3 rules, 3 IDEs, link para manual
 - **Notas para IA:**
 
@@ -392,7 +392,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** GitHub Settings (manual pelo usuario)
 - **Depende de:** T9 (README atualizado)
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** pendente (acao manual pelo usuario)
 - **Criterio de aceite:** Repo acessivel em github.com/henriqueneves87/ai-coding-toolkit, redirect ativo
 - **Notas para IA:**
 
@@ -411,7 +411,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `c:\saphiro_baas\docs\00_overview\context.md`, `c:\saphiro_baas\docs\00_overview\roadmap.md`
 - **Depende de:** T1-T9 (todas as mudancas concluidas)
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** Decisao 28 no context.md referenciando DR_029. Roadmap com nova secao Toolkit.
 - **Notas para IA:**
 
