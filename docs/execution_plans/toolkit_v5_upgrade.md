@@ -2,7 +2,7 @@
 
 Fase: Evolução do toolkit v4.4 → v5.0
 Versao: 1.0
-Status: BLOCO C CONCLUIDO
+Status: BLOCO D CONCLUIDO
 Modo de execucao: MANUAL (uma tarefa por conversa)
 Ultima atualizacao: 2026-02-24
 Pre-requisitos: Repo cursor-toolkit clonado em C:\Users\User\cursor-toolkit. Decisoes aprovadas (DR_029).
@@ -314,7 +314,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `templates/.pre-commit-config.yaml` (NOVO no toolkit), `templates/.github/workflows/ci.yml` (NOVO no toolkit), aplicar em `c:\saphiro_baas\`
 - **Depende de:** T2 (precisa estar no manual)
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** Templates no toolkit, pre-commit + CI funcionando no saphiro_baas
 - **Notas para IA:**
 
