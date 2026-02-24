@@ -2,7 +2,7 @@
 
 Fase: Evolução do toolkit v4.4 → v5.0
 Versao: 1.0
-Status: BLOCO A CONCLUIDO
+Status: BLOCO B CONCLUIDO
 Modo de execucao: MANUAL (uma tarefa por conversa)
 Ultima atualizacao: 2026-02-24
 Pre-requisitos: Repo cursor-toolkit clonado em C:\Users\User\cursor-toolkit. Decisoes aprovadas (DR_029).
@@ -94,7 +94,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** `docs/manual.md` (NOVO)
 - **Depende de:** T1 (precisa referenciar /project-init)
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluido
 - **Criterio de aceite:** Manual cobre: instalacao, primeiro projeto, fluxo diario, comandos com exemplos, skills/agents automaticos, fluxos completos (feature, bug, refactor), anti-patterns, referencia rapida
 - **Notas para IA:**
 
