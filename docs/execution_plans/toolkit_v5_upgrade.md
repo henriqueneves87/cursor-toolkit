@@ -2,7 +2,7 @@
 
 Fase: Evolução do toolkit v4.4 → v5.0
 Versao: 1.0
-Status: BLOCO E CONCLUIDO (T10 pendente acao manual)
+Status: CONCLUIDO — todos os blocos A, B, C, D, E executados
 Modo de execucao: MANUAL (uma tarefa por conversa)
 Ultima atualizacao: 2026-02-24
 Pre-requisitos: Repo cursor-toolkit clonado em C:\Users\User\cursor-toolkit. Decisoes aprovadas (DR_029).
@@ -392,7 +392,7 @@ Reduzir o toolkit de 48 para 30 artefatos, eliminar redundancias, criar /project
 - **Arquivos:** GitHub Settings (manual pelo usuario)
 - **Depende de:** T9 (README atualizado)
 - **Conflita com:** nenhuma
-- **Status:** pendente (acao manual pelo usuario)
+- **Status:** concluido
 - **Criterio de aceite:** Repo acessivel em github.com/henriqueneves87/ai-coding-toolkit, redirect ativo
 - **Notas para IA:**
 
