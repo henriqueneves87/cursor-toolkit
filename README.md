@@ -1,101 +1,137 @@
-# cursor-toolkit
+# AI Coding Toolkit
 
-Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE](https://cursor.sh), projetados para governança de IA, qualidade de código e produtividade.
+Coleção de **skills**, **commands**, **agents** e **rules** para Cursor, Windsurf e Trae, projetados para governança de IA, qualidade de código e produtividade. Transforma assistentes de IA em engenheiros disciplinados: planejamento antes de execução, logs legíveis, tratamento de erro explícito e commits com critério de valor.
+
+> **Documentação completa:** [`docs/manual.md`](docs/manual.md)
+
+---
 
 ## O que está incluído
 
-### Skills (12)
+### Skills (8 ativos + 5 infra)
 
-| Skill | Descrição |
-|-------|-----------|
-| `code-with-logs` | Logs narrativos com timestamp `[HH:MM:SS]` obrigatório em todo código executável |
-| `create-execution-plan` | Execution plans otimizados para IA executar tarefas multi-etapas (com template) |
-| `create-subagents` | Padrão modular de subagentes Python com early return e logs |
-| `create-documentation` | Estrutura de documentação organizada com anti-dumping e progressive disclosure |
-| `error-handling-patterns` | Padrões de tratamento de erro: early return, erros explícitos, propagação |
-| `testing-patterns` | Padrões AAA (Arrange-Act-Assert), edge cases, testes narrativos |
-| `git-workflow` | Branching, commit messages, PR descriptions, critério de valor |
-| `create-rule` | Meta-skill para criar regras do Cursor (`.cursor/rules/`) |
-| `create-skill` | Meta-skill para criar Agent Skills (`.cursor/skills/`) |
-| `create-subagent` | Meta-skill para criar subagentes do Cursor (`.cursor/agents/`) |
-| `migrate-to-skills` | Converte rules e commands antigos para o formato Skills |
-| `update-cursor-settings` | Modifica configurações do Cursor/VSCode (`settings.json`) |
+| Skill | Tipo | Ativa quando |
+|-------|------|-------------|
+| `code-with-logs` | Ativo | Script Python executável |
+| `create-subagents` | Ativo | Script >200 linhas |
+| `error-handling-patterns` | Ativo | Código com try/except ou I/O |
+| `testing-patterns` | Ativo | Criação de testes |
+| `git-workflow` | Ativo | Commits, branches, PRs |
+| `create-documentation` | Ativo | Criação/atualização de docs |
+| `create-execution-plan` | Ativo | Planejamento multi-etapas |
+| `frontend-conventions` | Ativo | UI/UX em React/Next.js |
+| `create-rule` | Infra ⚙️ | Criação de rules do Cursor |
+| `create-skill` | Infra ⚙️ | Criação de Agent Skills |
+| `create-subagent` | Infra ⚙️ | Criação de subagentes |
+| `migrate-to-skills` | Infra ⚙️ | Migração para formato Skills |
+| `update-cursor-settings` | Infra ⚙️ | Modificar settings.json |
 
-### Commands (16)
+> Skills **Infra** são utilitários do toolkit. Skills **Ativos** disparam automaticamente por contexto.
 
-| Command | Descrição |
+### Commands (11)
+
+**Essenciais (uso diário):**
+
+| Command | O que faz |
 |---------|-----------|
-| `apply-conventions` | Checklist obrigatório ANTES de gerar código (valida skills aplicáveis) |
-| `create-execution-plan` | Gera execution plan otimizado para IA executar tarefas multi-etapas |
-| `context-boot` | Carrega contexto mínimo do projeto (<=500 tokens) |
-| `context-focus` | Carrega contexto direcionado para tarefa específica (<=900 tokens) |
-| `context-deep` | Leitura cirúrgica de arquivos específicos (<=600 tokens) |
-| `architecture-review` | Auditoria completa do projeto em modo DRY-RUN (não modifica nada) |
-| `audit-response` | Audita a resposta anterior da IA contra as convenções |
-| `checkpoint-and-branch` | Cria checkpoint seguro + branch antes de mudanças estruturais |
-| `commit-decision` | Avalia se artefatos devem virar commit (critério de valor) |
-| `decision-needed` | Lista opções para decisões técnicas, espera escolha do usuário |
-| `decision-report` | Gera relatório técnico versionado para tomada de decisão |
-| `governed-task` | Força execução governada de tarefas grandes (Sequential Thinking) |
-| `help-commands` | Guia prático de quando e por que usar cada command |
-| `optimize-prompt` | Reescreve prompts para máxima clareza (modo HARD STOP) |
-| `summarize-session` | Resume sessão de trabalho para continuidade futura |
-| `update-context` | Atualiza memória longa do projeto (`context.md`) |
+| `/project-init` | Bootstrap de projeto novo: context.md + roadmap.md + estrutura completa |
+| `/context-boot` | Carrega contexto mínimo no início da sessão (~500 tokens) |
+| `/apply-conventions` | Checklist pré-geração: logs? erros? plano? skills aplicáveis? |
+| `/update-context` | Atualiza context.md com avanço real do projeto |
+| `/create-execution-plan` | Plano multi-etapas com dependências e critérios de aceite |
+| `/decision-needed` | Apresenta trade-offs e força decisão humana documentada |
+| `/checkpoint-and-branch` | Cria branch de backup antes de mudança arriscada |
+
+**Situacionais:**
+
+| Command | O que faz |
+|---------|-----------|
+| `/architecture-review` | Auditoria DRY-RUN do projeto (não altera código) |
+| `/decision-report` | Relatório técnico versionado (DR_XXX) |
+| `/summarize-session` | Resume sessão + sugere próximos passos |
+| `/help-commands` | Lista todos os comandos com exemplos |
 
 ### Agents (8)
 
-| Agent | Descrição |
-|-------|-----------|
-| `context-audit-agent` | Auditorias com abordagem evidence-first |
-| `context-feature-agent` | Implementação de features com spec-first |
-| `context-migration-agent` | Migrations com safety-first (backup, rollback) |
+| Agent | Delegado quando |
+|-------|----------------|
+| `debugger` | Bug ou comportamento inesperado |
+| `test-writer` | Criação de testes abrangentes |
+| `code-reviewer` | Revisão de qualidade e segurança |
+| `migration-applier` | Migration SQL (PostgreSQL/Supabase) |
+| `context-audit-agent` | Auditoria evidence-first |
+| `context-feature-agent` | Feature nova spec-first |
+| `context-migration-agent` | Migração safety-first com rollback |
 | `context-refactor-agent` | Refatoração incremental com validação |
-| `code-reviewer` | Revisão de código para qualidade, segurança e manutenibilidade |
-| `debugger` | Diagnóstico sistemático: root cause analysis, fix, verificação |
-| `test-writer` | Criação de testes abrangentes (unit, integration, edge cases) |
-| `migration-applier` | Aplicação de migrations SQL (PostgreSQL/Supabase) |
 
-### Rules (1)
+### Rules (3)
 
-| Rule | Descrição |
-|------|-----------|
-| `ai-conventions-base` | Template base de convenções para projetos (adaptar ao seu projeto) |
+| Rule | Escopo |
+|------|--------|
+| `ai-conventions-compact.md` | Postura, tarefas, commits, segurança |
+| `skills-auto-apply.md` | Tabela de triggers + lista de agents |
+| `project-specific-template.md` | Template para regras específicas do projeto |
 
 ---
 
 ## Instalação
 
-### Pré-requisitos
-
-- [Cursor IDE](https://cursor.sh) instalado
-- [Git](https://git-scm.com/) instalado
-
-### 1. Clonar o repositório
+### Cursor
 
 ```bash
-git clone https://github.com/henriqueneves87/cursor-toolkit.git
+git clone https://github.com/henriqueneves87/ai-coding-toolkit.git
 ```
 
-Clone em qualquer diretório de sua preferência (ex: `C:\Tools\cursor-toolkit` ou `~/tools/cursor-toolkit`).
+**Rules** — vá em **Settings → Cursor Settings → Rules** e adicione como User Rules:
+- `rules/ai-conventions-compact.md`
+- `rules/skills-auto-apply.md`
+- `rules/project-specific-template.md` (copie e adapte por projeto)
 
-### 2. Instalar
-
-**Windows (PowerShell como Admin):**
+**Skills** — copie para `~/.cursor/skills/`:
 
 ```powershell
-cd cursor-toolkit
-.\install.ps1
+Copy-Item -Recurse skills\* "$env:USERPROFILE\.cursor\skills\" -Force
 ```
 
-**Linux/Mac:**
+**Commands** — copie para `.cursor/commands/` no projeto:
+
+```powershell
+Copy-Item -Recurse commands\* ".cursor\commands\" -Force
+```
+
+Ou use o instalador:
+
+```powershell
+# Windows
+.\install.ps1
+
+# Linux/Mac
+chmod +x install.sh && ./install.sh
+```
+
+### Windsurf
 
 ```bash
-cd cursor-toolkit
-chmod +x install.sh
-./install.sh
+cd windsurf-toolkit
+.\install.ps1          # Windows
+./install.sh           # Linux/Mac
 ```
 
-### Opções de instalação
+Skills, workflows e rules são instalados globalmente em `~/.codeium/windsurf/`.
+
+### Trae
+
+```bash
+cd trae-toolkit
+.\install.ps1 -ProjectPath "C:\caminho\do\projeto"   # Windows
+./install.sh /caminho/do/projeto                      # Linux/Mac
+```
+
+O `project_rules.md` compilado é copiado para `.trae/project_rules.md` do projeto alvo.
+
+---
+
+## Opções do instalador (Cursor)
 
 | Opção | Descrição |
 |-------|-----------|
@@ -104,110 +140,101 @@ chmod +x install.sh
 | `-Force` / `--force` | Reinstala com backup do existente |
 | `-Uninstall` / `--uninstall` | Remove a instalação |
 
-### O que o instalador faz
-
-Cria links simbólicos (ou copia) para os diretórios globais do Cursor:
-
-```
-~/.cursor/skills/   → cursor-toolkit/skills/
-~/.cursor/commands/  → cursor-toolkit/commands/
-~/.cursor/agents/    → cursor-toolkit/agents/
-```
-
 ---
 
 ## Atualização
 
-**Se usou symlinks (padrão):**
+**Symlinks (padrão):**
 
 ```bash
-cd cursor-toolkit
+cd ai-coding-toolkit
 git pull
 ```
 
-Pronto. Symlinks apontam para o repo, então `git pull` atualiza tudo automaticamente.
-
-**Se usou cópia:**
+**Cópia:**
 
 ```bash
-cd cursor-toolkit
 git pull
-./install.sh --copy --force   # Linux/Mac
 .\install.ps1 -Copy -Force    # Windows
+./install.sh --copy --force    # Linux/Mac
 ```
 
 ---
 
-## Uso com projetos
+## Templates
 
-### Skills globais + Skills do projeto
+O diretório `templates/` contém:
 
-O Cursor carrega **ambos** — skills globais (`~/.cursor/skills/`) e do projeto (`.cursor/skills/`). Sem conflito.
+| Template | Uso |
+|----------|-----|
+| `.pre-commit-config.yaml` | Pre-commit com ruff (lint + format) |
+| `.github/workflows/ci.yml` | CI com ruff + pytest no GitHub Actions |
 
-**Recomendação:**
-- **cursor-toolkit** (global): skills genéricas que valem para qualquer projeto
-- **`.cursor/skills/`** (projeto): skills específicas do seu projeto
+**Aplicar em um projeto:**
 
-### Adaptando as rules
+```bash
+cp templates/.pre-commit-config.yaml .
+cp -r templates/.github .
+pip install pre-commit && pre-commit install
+```
 
-O arquivo `rules/ai-conventions-base.md` é um **template**. Para usar no seu projeto:
-
-1. Copie para `.cursor/rules/` do seu projeto
-2. Adapte as seções conforme necessário
-3. Adicione regras específicas do projeto
+Consulte `docs/manual.md` seção 8 para fundamento anti-vibecoding.
 
 ---
 
 ## Estrutura
 
 ```
-cursor-toolkit/
+ai-coding-toolkit/
 ├── README.md
-├── install.ps1          # Instalador Windows
-├── install.sh           # Instalador Linux/Mac
-├── skills/
-│   ├── code-with-logs/SKILL.md
+├── install.ps1              # Instalador Windows (Cursor)
+├── install.sh               # Instalador Linux/Mac (Cursor)
+├── docs/
+│   └── manual.md            # Documentação completa
+├── skills/                  # 8 ativos + 5 infra
+│   ├── code-with-logs/
+│   ├── create-subagents/
+│   ├── error-handling-patterns/
+│   ├── testing-patterns/
+│   ├── git-workflow/
+│   ├── create-documentation/
 │   ├── create-execution-plan/
-│   │   ├── SKILL.md
-│   │   └── template.md
-│   ├── create-subagents/SKILL.md
-│   ├── create-documentation/SKILL.md
-│   ├── error-handling-patterns/SKILL.md
-│   ├── testing-patterns/SKILL.md
-│   ├── git-workflow/SKILL.md
-│   ├── create-rule/SKILL.md
-│   ├── create-skill/SKILL.md
-│   ├── create-subagent/SKILL.md
-│   ├── migrate-to-skills/SKILL.md
-│   └── update-cursor-settings/SKILL.md
-├── commands/
-│   ├── apply-conventions.md
+│   ├── frontend-conventions/
+│   ├── create-rule/         # infra
+│   ├── create-skill/        # infra
+│   ├── create-subagent/     # infra
+│   ├── migrate-to-skills/   # infra
+│   └── update-cursor-settings/ # infra
+├── commands/                # 11 commands
+│   ├── project-init.md
 │   ├── context-boot.md
-│   ├── context-focus.md
-│   ├── context-deep.md
+│   ├── apply-conventions.md
+│   ├── update-context.md
 │   ├── create-execution-plan.md
-│   ├── architecture-review.md
-│   ├── audit-response.md
-│   ├── checkpoint-and-branch.md
-│   ├── commit-decision.md
 │   ├── decision-needed.md
+│   ├── checkpoint-and-branch.md
+│   ├── architecture-review.md
 │   ├── decision-report.md
-│   ├── governed-task.md
-│   ├── help-commands.md
-│   ├── optimize-prompt.md
 │   ├── summarize-session.md
-│   └── update-context.md
-├── agents/
+│   └── help-commands.md
+├── agents/                  # 8 agents
+│   ├── debugger.md
+│   ├── test-writer.md
+│   ├── code-reviewer.md
+│   ├── migration-applier.md
 │   ├── context-audit-agent.md
 │   ├── context-feature-agent.md
 │   ├── context-migration-agent.md
-│   ├── context-refactor-agent.md
-│   ├── code-reviewer.md
-│   ├── debugger.md
-│   ├── test-writer.md
-│   └── migration-applier.md
-└── rules/
-    └── ai-conventions-base.md
+│   └── context-refactor-agent.md
+├── rules/                   # 3 rules
+│   ├── ai-conventions-compact.md
+│   ├── skills-auto-apply.md
+│   └── project-specific-template.md
+├── templates/               # Pre-commit + CI
+│   ├── .pre-commit-config.yaml
+│   └── .github/workflows/ci.yml
+├── windsurf-toolkit/        # Adaptação para Windsurf
+└── trae-toolkit/            # Adaptação para Trae
 ```
 
 ---
