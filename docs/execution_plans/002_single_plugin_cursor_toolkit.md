@@ -1,8 +1,8 @@
 # Plano: single_plugin_cursor_toolkit
 
-Fase: N
+Fase: 1
 Versao: 1.0
-Status: NAO INICIADO
+Status: EM ANDAMENTO
 Modo de execucao: MANUAL
 Ultima atualizacao: 2025-03-04
 Pre-requisitos: Repo cursor-toolkit clonado. Estrutura atual com rules/, skills/, agents/, commands/ funcionando via install.sh (symlinks para ~/.cursor/).
@@ -68,7 +68,7 @@ Migrar o cursor-toolkit para o formato de single plugin do Cursor, permitindo us
 - **Arquivos:** `.cursor-plugin/` (pasta), `.cursor-plugin/plugin.json` (arquivo)
 - **Depende de:** nenhuma
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluído
 - **Critério de aceite:** Arquivo plugin.json existe e é JSON válido
 - **Notas para IA:**
 

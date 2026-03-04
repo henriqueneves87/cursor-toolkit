@@ -1,0 +1,10 @@
+{
+  "name": "cursor-toolkit",
+  "displayName": "Cursor Toolkit",
+  "version": "0.1.0",
+  "description": "Skills, commands, agents e rules para Cursor — uso pessoal.",
+  "author": { "name": "Cursor Toolkit" },
+  "license": "MIT",
+  "keywords": ["cursor", "toolkit", "workflows", "skills", "agents"],
+  "logo": "assets/logo.svg"
+}
