@@ -1,8 +1,8 @@
 # Plano: single_plugin_cursor_toolkit
 
-Fase: 1
+Fase: 3
 Versao: 1.0
-Status: EM ANDAMENTO
+Status: CONCLUIDO
 Modo de execucao: MANUAL
 Ultima atualizacao: 2025-03-04
 Pre-requisitos: Repo cursor-toolkit clonado. Estrutura atual com rules/, skills/, agents/, commands/ funcionando via install.sh (symlinks para ~/.cursor/).
@@ -161,7 +161,7 @@ Migrar o cursor-toolkit para o formato de single plugin do Cursor, permitindo us
 - **Arquivos:** `README.md`
 - **Depende de:** T1
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluído
 - **Critério de aceite:** README documenta como usar o toolkit como plugin Cursor
 - **Notas para IA:**
 
@@ -181,7 +181,7 @@ Migrar o cursor-toolkit para o formato de single plugin do Cursor, permitindo us
 - **Arquivos:** `install.sh`, `install.ps1` (se existir)
 - **Depende de:** T1
 - **Conflita com:** nenhuma
-- **Status:** pendente
+- **Status:** concluído
 - **Critério de aceite:** Scripts mencionam que o toolkit também pode ser usado como plugin
 - **Notas para IA:**
 

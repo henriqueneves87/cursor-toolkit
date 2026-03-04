@@ -1,7 +1,7 @@
 # cursor-toolkit install.ps1
 # Cria symlinks do cursor-toolkit para os diretórios globais do Cursor
 # Requer: Executar como Administrador (para criar symlinks no Windows)
-
+# Alternativa: use como plugin Cursor (formato single plugin). Ver README.
 param(
     [switch]$Force,
     [switch]$Copy,
@@ -13,8 +13,8 @@ $toolkitDir = $PSScriptRoot
 $cursorDir = "$env:USERPROFILE\.cursor"
 
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  cursor-toolkit — Instalação" -ForegroundColor Cyan
+Write-Host "cursor-toolkit — Instalação (symlinks)" -ForegroundColor Cyan
+Write-Host "Alternativa: use como plugin Cursor. Ver README." -ForegroundColor Gray
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Toolkit: $toolkitDir"

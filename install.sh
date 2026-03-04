@@ -2,7 +2,8 @@
 # cursor-toolkit install.sh
 # Cria symlinks do cursor-toolkit para os diretórios globais do Cursor
 # Uso: ./install.sh [--copy] [--force] [--uninstall]
-
+#
+# Alternativa: use como plugin Cursor (formato single plugin). Ver README.
 set -e
 
 TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -25,8 +26,8 @@ for arg in "$@"; do
 done
 
 echo ""
-echo "========================================"
-echo "  cursor-toolkit — Instalação"
+echo "cursor-toolkit — Instalação (symlinks)"
+echo "Alternativa: use como plugin Cursor. Ver README."
 echo "========================================"
 echo ""
 echo "Toolkit: $TOOLKIT_DIR"
