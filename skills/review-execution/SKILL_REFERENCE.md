@@ -192,13 +192,42 @@ FORMATO DE RETORNO:
 4. Gerar relatorio MD
 5. Se ha items `[PRECISA ANALISE]`: gerar prompt de handoff (ver secao abaixo)
 
-### Fase 3 — Handoff
+### Fase 3 — Acao Pos-Review
 
-1. Apresentar resumo executivo ao usuario
-2. Top 5 inconsistencias mais criticas
-3. Se ha items `[PRECISA ANALISE]`: informar caminho do prompt de handoff
-4. Perguntar: "Quer que eu gere um execution plan de correcao com base neste relatorio?"
-5. Se sim: aplicar skill `create-execution-plan` usando o relatorio como diagnostico
+**A IA DEVE guiar o usuario ate a acao, nao apenas listar inconsistencias.**
+
+1. Apresentar resumo executivo (tabela de severidades + top 5)
+
+2. Agrupar inconsistencias por tipo de acao:
+
+```
+CORRECOES RAPIDAS (posso aplicar agora, Composer):
+- #N DRIFT: [descricao] → [acao]
+
+CORRECOES MODERADAS (posso aplicar agora se autorizado, Composer):
+- #N LACUNA: [descricao] → [acao]
+
+FEATURES/COMPLEXAS (recomendo execution plan, Opus):
+- #N LACUNA: [descricao] → prompt de handoff salvo em {caminho}
+
+ANALISE PROFUNDA (prompt de handoff salvo, Sonnet):
+- #N [PRECISA ANALISE]: [descricao] → prompt salvo em {caminho}
+```
+
+3. Perguntar de forma estruturada:
+   > "Posso aplicar as N correcoes rapidas agora? Para as features complexas, recomendo /create-execution-plan em nova conversa com Opus."
+
+4. Se autorizado: aplicar correcoes rapidas (DRIFTs e LACUNAs simples) direto na mesma conversa
+
+5. Se ha features complexas: gerar prompt de handoff para `/create-execution-plan`:
+   - Salvar em: `docs/04_operations/prompts_correcao_{NNN}_{nome}.md`
+   - Conteudo: inconsistencias como diagnostico + instrucao para gerar plano
+
+6. Se ha items `[PRECISA ANALISE]`: gerar prompt de handoff para analise profunda:
+   - Salvar em: `docs/04_operations/prompts_review_{NNN}_{nome}.md`
+   - Conteudo: items flagrados + trechos de codigo + instrucao de analise
+
+**Regra:** a review NAO termina no relatorio. Termina quando o usuario sabe exatamente o que fazer em seguida.
 
 ---
 
@@ -321,10 +350,22 @@ Items [PRECISA ANALISE]: N (prompt de handoff: {caminho ou "nenhum"})
 
 ---
 
-## Proximo Passo
+## Acoes Recomendadas
 
-Recomendacao: `/create-execution-plan` usando este relatorio como diagnostico.
-Se ha items [PRECISA ANALISE]: executar prompt de handoff em {caminho} antes.
+### Correcoes rapidas (aplicar agora, Composer)
+- #N DRIFT: [descricao] → [acao]
+- #N DRIFT: [descricao] → [acao]
+
+### Correcoes moderadas (aplicar se autorizado, Composer)
+- #N LACUNA: [descricao] → [acao]
+
+### Features complexas (execution plan, Opus)
+- #N LACUNA: [descricao]
+- Prompt de handoff: `docs/04_operations/prompts_correcao_{NNN}_{nome}.md`
+
+### Analise profunda (Sonnet)
+- #N [PRECISA ANALISE]: [descricao]
+- Prompt de handoff: `docs/04_operations/prompts_review_{NNN}_{nome}.md`
 ```
 
 ### Caminho do relatorio

@@ -65,7 +65,42 @@ FORMATO DE RETORNO:
 
 **2 — Consolidacao (Composer/pool incluso):** Agente pai deduplica, classifica severidade, gera relatorio MD. Se ha items `[PRECISA ANALISE]`, gera prompt de handoff.
 
-**3 — Handoff:** Resumo + Top 5 + oferecer `/create-execution-plan` de correcao. Se ha items `[PRECISA ANALISE]`, informar que o prompt de analise profunda foi salvo.
+**3 — Handoff + Acao pos-review:** Apresentar resultado estruturado e guiar proximo passo.
+
+## FASE 3 — ACAO POS-REVIEW (obrigatoria)
+
+Apos gerar o relatorio, a IA DEVE apresentar o resultado de forma acionavel:
+
+**1. Resumo executivo** (tabela de severidades + top 5)
+
+**2. Triagem de acoes** — agrupar inconsistencias por tipo de acao:
+
+```
+CORRECOES RAPIDAS (posso aplicar agora, Composer):
+- #3 DRIFT: atualizar status T15-T25 no plano → "concluido"
+- #5 DRIFT: remover comentario obsoleto em router.py L74
+
+CORRECOES MODERADAS (posso aplicar agora se autorizado, Composer):
+- #4 LACUNA: adicionar campo X no model Y
+
+FEATURES/COMPLEXAS (recomendo execution plan, Opus):
+- #1 LACUNA: DRE multi-meses (backend + frontend)
+- #2 LACUNA: drill-down com sparkline
+
+ANALISE PROFUNDA (prompt de handoff salvo, Sonnet):
+- (items [PRECISA ANALISE], se houver)
+```
+
+**3. Perguntar de forma estruturada:**
+> "Posso aplicar as N correcoes rapidas agora? Para as features complexas, recomendo /create-execution-plan em nova conversa com Opus."
+
+**4. Se autorizado:** aplicar correcoes rapidas (DRIFTs e LACUNAs simples) direto na mesma conversa.
+
+**5. Se ha features complexas:** gerar prompt de handoff para `/create-execution-plan`, salvar em `docs/04_operations/prompts_correcao_{NNN}_{nome}.md`.
+
+**6. Se ha items [PRECISA ANALISE]:** gerar prompt de handoff para analise profunda (Sonnet), salvar em `docs/04_operations/prompts_review_{NNN}_{nome}.md`.
+
+**Regra:** a IA NAO deve apenas listar inconsistencias e parar. Deve guiar o usuario ate a acao.
 
 ## PROMPT DE HANDOFF (analise profunda)
 
@@ -111,8 +146,16 @@ Items [PRECISA ANALISE]: N (prompt de handoff: {caminho ou "nenhum"})
 ## Inconsistencias
 | # | Item | Classif. | Tipo | Severidade | Arquivo | Evidencia |
 
-## Proximo Passo
-Recomendacao: [acao]
+## Acoes Recomendadas
+
+### Correcoes rapidas (aplicar agora, Composer)
+- [lista de DRIFTs e LACUNAs simples]
+
+### Features complexas (execution plan, Opus)
+- [lista com prompt de handoff: {caminho}]
+
+### Analise profunda (Sonnet)
+- [lista com prompt de handoff: {caminho}]
 ```
 
 ## ANTI-PATTERNS

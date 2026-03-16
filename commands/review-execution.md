@@ -36,20 +36,27 @@ Se nao informado, perguntar: plan | docs | full
 Executar as 4 fases da skill:
 - Fase 0: Parse → checklist compacto (Composer/pool incluso)
 - Fase 1: Triagem mecanica → items [MECANICO] e [PRECISA ANALISE] (Composer/pool incluso)
-- Fase 2: Consolidacao → relatorio + prompt de handoff se necessario (Composer/pool incluso)
-- Fase 3: Handoff → apresentar resultado ao usuario
+- Fase 2: Consolidacao → relatorio (Composer/pool incluso)
+- Fase 3: Acao pos-review → triagem de acoes + guiar usuario (Composer/pool incluso)
 
 ### 4. Salvar artefatos
 
 - Relatorio: `docs/05_decisions/reports/review_exec_{NNN}_{nome}_{YYYY-MM-DD}.md`
-- Prompt de handoff (se houver items [PRECISA ANALISE]): `docs/04_operations/prompts_review_{NNN}_{nome}.md`
+- Prompt de handoff para analise profunda (se items [PRECISA ANALISE]): `docs/04_operations/prompts_review_{NNN}_{nome}.md`
+- Prompt de handoff para features complexas (se LACUNAs complexas): `docs/04_operations/prompts_correcao_{NNN}_{nome}.md`
 
-### 5. Apresentar resultado
+### 5. Acao pos-review (OBRIGATORIO)
 
-1. Resumo executivo (tabela de severidades)
-2. Top 5 inconsistencias mais criticas
-3. Se ha items [PRECISA ANALISE]: informar caminho do prompt de handoff e recomendar nova conversa com tier intermediario (Sonnet/GPT-5.4)
-4. Oferecer: "Quer que eu gere um execution plan de correcao?"
+A IA DEVE guiar o usuario ate a acao, nao apenas listar inconsistencias:
+
+1. Resumo executivo (tabela de severidades + top 5)
+2. Agrupar inconsistencias por tipo de acao:
+   - **Correcoes rapidas** (DRIFTs, LACUNAs simples) → "Posso aplicar agora?"
+   - **Features complexas** (LACUNAs com backend+frontend) → prompt de handoff para /create-execution-plan (Opus)
+   - **Analise profunda** (items [PRECISA ANALISE]) → prompt de handoff para Sonnet/GPT-5.4
+3. Perguntar: "Posso aplicar as N correcoes rapidas agora?"
+4. Se autorizado: aplicar direto na mesma conversa
+5. Informar caminhos dos prompts de handoff salvos para as demais acoes
 
 ---
 
