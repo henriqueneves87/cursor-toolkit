@@ -1,9 +1,9 @@
 ---
-description: Convenções base compactas — postura da IA, tarefas, scratchpad, commits e segurança
+description: Convenções base compactas — postura da IA, tarefas, scratchpad, commits, segurança e gestão de conversa
 alwaysApply: true
 ---
 
-# AI Conventions — Compacto v5.0
+# AI Conventions — Compacto v6.0
 
 ## Postura da IA
 
@@ -21,13 +21,14 @@ Antes de mudança estrutural: perguntar antes de agir.
 
 ## Sequential Thinking
 
-Tarefas não triviais: decompor em etapas, executar uma por vez, registrar decisões. Nunca resposta monolítica para tarefas grandes.
+Tarefas não triviais: decompor em etapas, executar uma por vez, registrar decisões no chat ou em `docs/_scratchpad/`.
 
 ## _scratchpad
 
 Material exploratório em `docs/_scratchpad/` com cabeçalho `STATUS: TRANSITÓRIO | DATA: YYYY-MM-DD`.
 Promover para `docs/` quando: arquitetura validada, decisão técnica, referência futura.
 Proibido manter conhecimento crítico apenas em `_scratchpad`.
+Se a pasta não existir, criar.
 
 ## Commits (Critério de Valor)
 
@@ -39,14 +40,10 @@ Mensagens: curtas, verbo de ação. (`feat:`, `fix:`, `docs:`, `refactor:`)
 
 Nenhuma key em código. `.env` obrigatório. Logs sem dados sensíveis.
 
-## Referências de Skills
+## Gestão de Conversa
 
-- Logs de progresso com timestamp → skill `code-with-logs`
-- Scripts >200 linhas ou multi-etapas → skill `create-subagents`
-- Tratamento de erro robusto → skill `error-handling-patterns`
-- Testes → skill `testing-patterns`
-- Git/commits/PRs → skill `git-workflow`
-- Docs → skill `create-documentation`
-- Planejamento multi-etapas → skill `create-execution-plan`
-- Revisao pos-execucao → skill `review-execution` (via `/review-execution`)
-- UI/UX React/Next.js → skill `frontend-conventions`
+Ao executar execution plan:
+- Após completar cada BLOCO, informar: "Bloco X concluído. Tarefas feitas: T1-TN. Próximo: Bloco Y."
+- Se a conversa já tem 3+ blocos executados OU 8+ arquivos editados:
+  `⚠️ Recomendo nova conversa para o próximo bloco. Cole o prompt de execução.`
+- Informar quais tarefas já foram concluídas para facilitar retomada.

@@ -1,160 +1,49 @@
 ---
 name: review-execution
-description: Revisao pos-execucao que compara fontes de verdade (execution plan, docs, roadmap) com codigo implementado. Gera relatorio de inconsistencias e oferece handoff para plano de correcao. Use quando comando /review-execution for invocado. NAO e auto-aplicavel.
+description: Revisao pos-execucao que compara fontes de verdade (execution plan, docs, roadmap) com codigo implementado. Gera relatorio de inconsistencias e prompt de handoff para analise profunda. Use quando comando /review-execution for invocado. NAO e auto-aplicavel.
 ---
 
-# Review Execution v1.0
+# Review Execution v2.0 (compacto)
+
+> Referencia completa com exemplos e template de relatorio: `SKILL_REFERENCE.md`
+> Consultar SKILL_REFERENCE.md quando: primeira review do projeto ou duvida sobre formato de relatorio.
 
 ## ATIVACAO
 
-**Esta skill NAO e auto-aplicavel.** So ativa quando:
+**NAO e auto-aplicavel.** So ativa com `/review-execution` ou pedido explicito.
+**NAO usar para:** revisao pontual (code-reviewer), bug conhecido (debugger), arquitetura (architecture-review).
 
-- Comando `/review-execution` invocado pelo usuario
-- Usuario pede revisao pos-execucao explicitamente
+## ESCOPOS
 
-**NUNCA disparar automaticamente.** O custo de contexto so se justifica quando o usuario decide revisar.
+**scope=plan:** Fonte = execution plan. "Tarefas implementadas como especificado?"
+- Arquivo existe? Modificado? Criterio atendido? Stubs/TODOs? Imports?
 
-## Quando NAO usar
+**scope=docs:** Fonte = docs/. "Docs refletem codigo real?"
+- Entidades/endpoints existem? Campos nos models? Regras implementadas? Roadmap atualizado?
 
-- Revisao de codigo pontual (usar `code-reviewer`)
-- Bug especifico com causa raiz conhecida (usar `debugger`)
-- Auditoria de resposta da IA (usar `audit-response`)
-- Reorganizacao arquitetural (usar `architecture-review`)
+**scope=full:** plan + docs. Max 4 subagentes (2 plan + 2 docs).
 
----
+## ESTRATEGIA ANTI-DUMBING (5 camadas)
 
-## Conceito
+1. Ativacao manual (nao consome ate chamar)
+2. Parse leve: checklist compacto da fonte de verdade, SEM ler codigo
+3. Subagentes cirurgicos: recebem APENAS checklist + caminhos
+4. Retorno compacto: APENAS inconsistencias
+5. Relatorio enxuto: so o que falhou
 
-Revisao pos-execucao compara **fontes de verdade** com **codigo real**, gerando relatorio de inconsistencias acionaveis. Fecha o ciclo:
+## FASES (review em camadas)
 
-```
-Plan → Execute → Review → (Fix Plan) → Execute → Review ✓
-```
+**0 — Parse (Composer/pool incluso):** Extrair checklist (1 linha/tarefa: `T1 | arquivo | criterio`). Agente pai.
 
-**Principio:** Revisar e verificar, nao corrigir. A skill e read-only.
+**1 — Triagem mecanica (Composer/pool incluso):** Subagentes verificam items objetivos. Retornam SO inconsistencias, classificadas como:
+- `[MECANICO]` — verificado objetivamente (arquivo existe, imports presentes, stubs/TODOs, campos no model)
+- `[PRECISA ANALISE]` — exige interpretacao de logica de negocio, validacao de criterios complexos, fluxos multi-step
 
----
+**Criterios de classificacao:**
+- Triagem mecanica `[MECANICO]`: arquivo existe? imports presentes? stubs/TODOs? campos no model/schema? endpoint registrado?
+- Analise profunda `[PRECISA ANALISE]`: criterio de aceite com logica condicional, regras de negocio, fluxos com multiplos caminhos, validacoes de dominio
 
-## Escopos de Revisao
-
-O usuario escolhe o escopo. Cada escopo tem fonte de verdade e estrategia propria.
-
-### scope=plan
-
-**Fonte de verdade:** Execution plan (tarefas T1..TN)
-**Pergunta:** "As tarefas do plano foram implementadas como especificado?"
-**Input:** Caminho do execution plan (ou buscar o mais recente)
-
-Verifica por tarefa:
-1. Arquivo listado existe?
-2. Arquivo foi modificado? (git log/diff)
-3. Criterio de aceite atendido? (verificacao semantica no codigo)
-4. Snippet "depois" presente no codigo? (se especificado no plano)
-5. Implementacao superficial? (buscar `TODO`, `pass`, `NotImplemented`, `...`, stubs)
-6. Imports/dependencias adicionados?
-
-### scope=docs
-
-**Fonte de verdade:** Documentacao do projeto (docs/)
-**Pergunta:** "A documentacao reflete o codigo real?"
-**Input:** Caminho de docs/ (ou usar padrao do projeto)
-
-Verifica:
-1. Entidades/endpoints documentados existem no codigo?
-2. Campos documentados existem nos models/schemas?
-3. Regras de negocio documentadas estao implementadas?
-4. Roadmap reflete o estado real? (itens marcados como feitos realmente existem?)
-5. Arquitetura documentada bate com a estrutura real?
-
-### scope=full
-
-Combina `plan` + `docs`, mas com estrategia de contexto:
-- Fase 0 gera checklist unificado
-- Subagentes sao divididos por fonte de verdade (nao por camada)
-- Maximo 4 subagentes (limite do Cursor)
-
----
-
-## Estrategia de Contexto (anti-dumbing)
-
-O maior risco desta skill e sobrecarregar a IA. Cinco camadas de protecao:
-
-### 1. Ativacao manual
-
-Nao consome contexto ate o usuario chamar.
-
-### 2. Parse leve na Fase 0
-
-Extrair CHECKLIST compacto da fonte de verdade. Nao ler codigo ainda.
-
-Formato do checklist:
-
-```
-T1 | arquivo: src/services/pay.py | criterio: "endpoint POST /pay retorna 201"
-T2 | arquivo: src/models/order.py | criterio: "campo discount_type adicionado"
-...
-```
-
-### 3. Subagentes cirurgicos
-
-Cada subagente recebe APENAS:
-- O checklist das tarefas que deve verificar
-- Os caminhos dos arquivos a ler
-- Instrucao: "retorne APENAS inconsistencias"
-
-NAO recebe: o plano inteiro, docs inteiros, contexto do projeto.
-
-### 4. Retorno compacto
-
-Subagentes retornam APENAS o que falhou. O que esta OK e descartado.
-
-### 5. Relatorio enxuto
-
-Tabela de inconsistencias + detalhamento so do que falhou. Sem listar o que esta correto.
-
----
-
-## Fases de Execucao
-
-### Fase 0 — Parse da Fonte de Verdade
-
-**Agente pai executa.**
-
-Para `scope=plan`:
-1. Ler o execution plan
-2. Extrair: tarefas, arquivos, criterios de aceite, snippets antes/depois
-3. Gerar checklist compacto (1 linha por tarefa)
-
-Para `scope=docs`:
-1. Listar arquivos em docs/ (sem ler conteudo)
-2. Ler APENAS docs relevantes (spec, roadmap, arquitetura)
-3. Extrair: entidades, endpoints, campos, regras de negocio
-4. Gerar checklist compacto
-
-Para `scope=full`:
-1. Executar ambos
-2. Unificar em checklist unico
-
-**Output:** Checklist compacto + lista de arquivos de codigo a verificar.
-
-### Fase 1 — Verificacao Paralela (subagentes)
-
-Dividir checklist em blocos e disparar subagentes via Task tool.
-
-**Divisao dos subagentes:**
-
-Para `scope=plan`:
-- Dividir tarefas em blocos de ~5 tarefas por subagente
-- Maximo 4 subagentes
-
-Para `scope=docs`:
-- 1 subagente por dominio de docs (spec, roadmap, arquitetura)
-- Maximo 3 subagentes
-
-Para `scope=full`:
-- 2 subagentes para plan + 2 subagentes para docs
-
-**Template de prompt para subagente:**
+**Template de prompt para subagente de triagem:**
 
 ```
 Voce e um revisor pos-execucao. Verifique se os itens abaixo foram implementados.
@@ -165,137 +54,67 @@ CHECKLIST:
 REGRAS:
 - Leia APENAS os arquivos listados no checklist
 - Retorne APENAS inconsistencias (o que esta OK, descarte)
-- Para cada inconsistencia, informe: item, tipo, severidade, evidencia
-- Busque implementacoes superficiais: TODO, pass, NotImplemented, stubs, placeholders
+- Classifique cada inconsistencia como [MECANICO] ou [PRECISA ANALISE]
+- Para cada inconsistencia: item, tipo, severidade, arquivo, evidencia
+- Busque: TODO, pass, NotImplemented, stubs, placeholders
 - NAO corrija nada, apenas reporte
 
 FORMATO DE RETORNO:
-| Item | Tipo | Severidade | Arquivo | Evidencia |
+| Item | Classificacao | Tipo | Severidade | Arquivo | Evidencia |
 ```
 
-### Fase 2 — Consolidacao
+**2 — Consolidacao (Composer/pool incluso):** Agente pai deduplica, classifica severidade, gera relatorio MD. Se ha items `[PRECISA ANALISE]`, gera prompt de handoff.
 
-**Agente pai executa.**
+**3 — Handoff:** Resumo + Top 5 + oferecer `/create-execution-plan` de correcao. Se ha items `[PRECISA ANALISE]`, informar que o prompt de analise profunda foi salvo.
 
-1. Receber resultados dos subagentes
-2. Deduplicar (mesmo item reportado por subagentes diferentes)
-3. Classificar por severidade
-4. Gerar relatorio MD
+## PROMPT DE HANDOFF (analise profunda)
 
-### Fase 3 — Handoff
+Quando a triagem identificar items `[PRECISA ANALISE]`, gerar prompt autocontido para nova conversa com modelo intermediario (Sonnet/GPT-5.4).
 
-1. Apresentar resumo executivo ao usuario
-2. Top 5 inconsistencias mais criticas
-3. Perguntar: "Quer que eu gere um execution plan de correcao com base neste relatorio?"
-4. Se sim: aplicar skill `create-execution-plan` usando o relatorio como diagnostico
+**Salvar em:** `docs/04_operations/prompts_review_{NNN}_{nome}.md` (mesmo NNN do plano original)
 
----
+**Conteudo obrigatorio do prompt de handoff:**
+1. Instrucao: "Analise os items abaixo que foram flagrados na triagem mecanica"
+2. Lista de items `[PRECISA ANALISE]` com: item, criterio de aceite original, arquivo, trecho de codigo relevante
+3. Caminho do relatorio de triagem (para o modelo atualizar com os resultados)
+4. Instrucao: "Atualize o relatorio em {caminho} adicionando os resultados desta analise"
+5. Instrucao: "Ao final, oferecer /create-execution-plan de correcao se houver inconsistencias"
 
-## Taxonomia de Inconsistencias
+**Regra:** o prompt DEVE ser autocontido — colar numa conversa nova com Sonnet/GPT-5.4 basta.
 
-| Tipo | Descricao |
-|------|-----------|
-| `nao_implementado` | Previsto na fonte de verdade mas nao existe no codigo |
-| `parcial` | Existe mas incompleto (ex: 3 de 5 campos adicionados) |
-| `divergente` | Existe mas diferente do especificado |
-| `superficial` | Existe mas com stubs/placeholders/TODOs |
-| `desatualizado` | Codigo mudou mas doc/plano nao acompanhou |
-| `orfao` | Implementado mas nao previsto em nenhum doc/plano |
+## TAXONOMIA E SEVERIDADES
 
-## Severidades
+Tipos: `nao_implementado` | `parcial` | `divergente` | `superficial` | `desatualizado` | `orfao`
+Severidades: **BLOQUEANTE** (impede uso) > **LACUNA** (falta algo) > **DRIFT** (desalinhamento)
 
-| Severidade | Criterio |
-|------------|----------|
-| **BLOQUEANTE** | Impede uso real: funcionalidade inteira ausente, fluxo quebrado |
-| **LACUNA** | Funciona mas falta algo relevante: campos, validacoes, acoes |
-| **DRIFT** | Desalinhamento doc/codigo: nao quebra mas gera confusao |
+## RELATORIO
 
----
+Salvar: `docs/05_decisions/reports/review_exec_{NNN}_{nome}_{YYYY-MM-DD}.md`
 
-## Relatorio — Estrutura
+**Estrutura minima:**
 
 ```markdown
-# Review Execution — {Nome do Projeto/Plano}
+# Review Execution — {Nome}
 
-Data: YYYY-MM-DD
-Escopo: plan | docs | full
-Fonte de verdade: {caminho do plano ou docs/}
-
----
+Data: YYYY-MM-DD | Escopo: {scope} | Fonte: {caminho}
 
 ## Resumo Executivo
-
 | Severidade | Qtd |
 |------------|-----|
 | BLOQUEANTE | N   |
 | LACUNA     | N   |
 | DRIFT      | N   |
-| **Total**  | N   |
 
-Tarefas/itens verificados: N
-Inconsistencias encontradas: N (X%)
-
----
+Items verificados: N | Inconsistencias: N (X%)
+Items [PRECISA ANALISE]: N (prompt de handoff: {caminho ou "nenhum"})
 
 ## Inconsistencias
-
-| # | Item | Tipo | Severidade | Arquivo | Evidencia |
-|---|------|------|------------|---------|-----------|
-
----
-
-## Detalhamento
-
-### [BLOQUEANTE] Item X — descricao curta
-- **Esperado:** (o que a fonte de verdade define)
-- **Encontrado:** (o que o codigo tem, ou "nao encontrado")
-- **Arquivo:** caminho:linha
-- **Acao sugerida:** (1 frase)
-
----
+| # | Item | Classif. | Tipo | Severidade | Arquivo | Evidencia |
 
 ## Proximo Passo
-
-Recomendacao: `/create-execution-plan` usando este relatorio como diagnostico.
+Recomendacao: [acao]
 ```
 
-### Caminho do relatorio
+## ANTI-PATTERNS
 
-```
-docs/05_decisions/reports/review_exec_{NNN}_{nome}_{YYYY-MM-DD}.md
-```
-
-Se `scope=plan`, usar o mesmo NNN do execution plan original.
-Se a pasta nao existir, criar.
-
----
-
-## Integracao
-
-| Apos review | Acao |
-|-------------|------|
-| Gerar plano de correcao | `/create-execution-plan` com relatorio como input |
-| Correcoes com logs | skill `code-with-logs` |
-| Revisar correcoes | skill `code-reviewer` |
-| Atualizar docs | skill `create-documentation` |
-
----
-
-## Anti-patterns
-
-- Disparar automaticamente (consome contexto sem necessidade)
-- Ler codebase inteiro na Fase 0 (usar parse leve + checklist)
-- Subagentes com escopo amplo (devem receber apenas checklist + caminhos)
-- Relatorio listando o que esta OK (so inconsistencias importam)
-- Revisar e corrigir ao mesmo tempo (review e read-only)
-- Inventar inconsistencias (se a fonte de verdade nao menciona, nao e inconsistencia)
-- Subagentes editando codigo (apenas leem e reportam)
-
----
-
-## Regra Final
-
-Execucao sem revisao e promessa sem verificacao.
-Revisao sem fonte de verdade e opiniao.
-Inconsistencia sem evidencia e achismo.
-**Review fecha o ciclo. Sem review, o ciclo e aberto.**
+Disparar automaticamente | Ler codebase inteiro | Subagentes com escopo amplo | Listar o que esta OK | Revisar e corrigir junto | Inventar inconsistencias | Subagentes editando codigo
