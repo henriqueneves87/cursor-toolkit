@@ -1,30 +1,28 @@
 # cursor-toolkit install.ps1
-# Cria symlinks do cursor-toolkit para os diretórios globais do Cursor
-# Requer: Executar como Administrador (para criar symlinks no Windows)
-# Alternativa: use como plugin Cursor (formato single plugin). Ver README.
+# Copia rules, skills, commands e agents para .cursor/ dentro do projeto destino.
+# Uso: .\install.ps1 -ProjectPath "C:\caminho\do\projeto" [-Force] [-Uninstall]
 param(
+    [Parameter(Mandatory = $true)]
+    [string]$ProjectPath,
     [switch]$Force,
-    [switch]$Copy,
     [switch]$Uninstall
 )
 
 $ErrorActionPreference = "Stop"
 $toolkitDir = $PSScriptRoot
-$cursorDir = "$env:USERPROFILE\.cursor"
+$cursorDir = Join-Path $ProjectPath ".cursor"
 
 Write-Host ""
-Write-Host 'cursor-toolkit - Instalacao (symlinks)' -ForegroundColor Cyan
-Write-Host 'Alternativa: use como plugin Cursor. Ver README.' -ForegroundColor Gray
-Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "cursor-toolkit - Instalacao no projeto" -ForegroundColor Cyan
+Write-Host "=======================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Toolkit: $toolkitDir"
-Write-Host "Cursor:  $cursorDir"
+Write-Host "Projeto: $ProjectPath"
+Write-Host "Destino: $cursorDir"
 Write-Host ""
 
-# Verificar se o diretório do Cursor existe
-if (-not (Test-Path $cursorDir)) {
-    Write-Host "ERRO: Diretorio do Cursor nao encontrado: $cursorDir" -ForegroundColor Red
-    Write-Host 'Verifique se o Cursor esta instalado.' -ForegroundColor Red
+if (-not (Test-Path $ProjectPath)) {
+    Write-Host "ERRO: Caminho do projeto nao encontrado: $ProjectPath" -ForegroundColor Red
     exit 1
 }
 
@@ -32,97 +30,100 @@ $targets = @(
     @{ Name = "skills";   Src = "$toolkitDir\skills";   Dst = "$cursorDir\skills" }
     @{ Name = "commands"; Src = "$toolkitDir\commands";  Dst = "$cursorDir\commands" }
     @{ Name = "agents";   Src = "$toolkitDir\agents";    Dst = "$cursorDir\agents" }
-    @{ Name = "rules";    Src = "$toolkitDir\rules";    Dst = "$cursorDir\rules" }
 )
+
+# rules: copiar apenas .mdc (exceto project-specific-template.mdc)
+$rulesDir = "$toolkitDir\rules"
+$rulesDst = "$cursorDir\rules"
 
 # --- UNINSTALL ---
 if ($Uninstall) {
-    Write-Host 'Removendo instalacao...' -ForegroundColor Yellow
+    Write-Host "Removendo instalacao do projeto..." -ForegroundColor Yellow
     foreach ($t in $targets) {
         if (Test-Path $t.Dst) {
-            $item = Get-Item $t.Dst -Force
-            if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-                # Eh symlink - remover
-                $item.Delete()
-                Write-Host "  Removido symlink: $($t.Name)" -ForegroundColor Green
-            } else {
-                Write-Host "  AVISO: $($t.Dst) nao eh symlink, nao removido" -ForegroundColor Yellow
-            }
+            Remove-Item -Recurse -Force $t.Dst
+            Write-Host "  Removido: $($t.Name)" -ForegroundColor Green
         } else {
             Write-Host "  $($t.Name) - nao encontrado, ignorando" -ForegroundColor Gray
         }
     }
+    if (Test-Path $rulesDst) {
+        Remove-Item -Recurse -Force $rulesDst
+        Write-Host "  Removido: rules" -ForegroundColor Green
+    } else {
+        Write-Host "  rules - nao encontrado, ignorando" -ForegroundColor Gray
+    }
     Write-Host ""
-    Write-Host 'Desinstalacao concluida.' -ForegroundColor Green
+    Write-Host "Desinstalacao concluida." -ForegroundColor Green
     exit 0
 }
 
 # --- INSTALL ---
+$totalCopied = @{ skills = 0; commands = 0; agents = 0; rules = 0 }
+
 foreach ($t in $targets) {
     Write-Host "Configurando $($t.Name)..." -ForegroundColor White
 
     if (Test-Path $t.Dst) {
-        $existing = Get-Item $t.Dst -Force
-        
-        if ($existing.Attributes -band [IO.FileAttributes]::ReparsePoint) {
-            # Ja eh symlink
-            if ($Force) {
-                $existing.Delete()
-                Write-Host '  Symlink existente removido (-Force)' -ForegroundColor Yellow
-            } else {
-                Write-Host '  Symlink ja existe. Use -Force para substituir.' -ForegroundColor Yellow
-                continue
-            }
+        if ($Force) {
+            $backup = "$($t.Dst)_backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+            Rename-Item $t.Dst $backup
+            Write-Host "  Backup criado: $backup" -ForegroundColor Yellow
         } else {
-            # Diretorio real existente
-            if ($Force) {
-                # Fazer backup
-                $backup = "$($t.Dst)_backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-                Rename-Item $t.Dst $backup
-                Write-Host "  Backup criado: $backup" -ForegroundColor Yellow
-            } elseif ($Copy) {
-                # Modo copia - copiar arquivos para dentro do diretorio existente
-                Write-Host '  Diretorio existe. Copiando arquivos...' -ForegroundColor Yellow
-                Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-                Write-Host "  Arquivos copiados para $($t.Dst)" -ForegroundColor Green
-                continue
-            } else {
-                Write-Host '  Diretorio ja existe. Use -Force (backup+symlink) ou -Copy (copiar arquivos)' -ForegroundColor Yellow
-                continue
-            }
+            Write-Host "  Ja existe. Use -Force para sobrescrever com backup." -ForegroundColor Yellow
+            continue
         }
     }
 
-    if ($Copy) {
-        # Modo copia - criar diretorio e copiar
-        New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
-        Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-        Write-Host "  Copiado para: $($t.Dst)" -ForegroundColor Green
+    New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
+    Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
+
+    $count = (Get-ChildItem -Recurse -File $t.Dst).Count
+    $totalCopied[$t.Name] = $count
+    Write-Host "  Copiado: $($t.Dst) ($count arquivos)" -ForegroundColor Green
+}
+
+# --- RULES (.mdc, exceto project-specific-template.mdc) ---
+Write-Host "Configurando rules..." -ForegroundColor White
+
+if (Test-Path $rulesDst) {
+    if ($Force) {
+        $backup = "${rulesDst}_backup_$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+        Rename-Item $rulesDst $backup
+        Write-Host "  Backup criado: $backup" -ForegroundColor Yellow
     } else {
-        # Modo symlink (padrao)
-        try {
-            New-Item -ItemType SymbolicLink -Path $t.Dst -Target $t.Src -Force | Out-Null
-            Write-Host "  Symlink criado: $($t.Dst) -> $($t.Src)" -ForegroundColor Green
-        } catch {
-            Write-Host '  ERRO ao criar symlink. Execute como Administrador ou use -Copy' -ForegroundColor Red
-            Write-Host '  Fallback: copiando arquivos...' -ForegroundColor Yellow
-            New-Item -ItemType Directory -Path $t.Dst -Force | Out-Null
-            Copy-Item -Path "$($t.Src)\*" -Destination $t.Dst -Recurse -Force
-            Write-Host "  Copiado para: $($t.Dst)" -ForegroundColor Green
-        }
+        Write-Host "  Ja existe. Use -Force para sobrescrever com backup." -ForegroundColor Yellow
     }
 }
 
+if (-not (Test-Path $rulesDst)) {
+    New-Item -ItemType Directory -Path $rulesDst -Force | Out-Null
+}
+
+$ruleFiles = Get-ChildItem -Path $rulesDir -Filter "*.mdc" |
+    Where-Object { $_.Name -ne "project-specific-template.mdc" }
+
+foreach ($f in $ruleFiles) {
+    Copy-Item -Path $f.FullName -Destination $rulesDst -Force
+}
+
+$totalCopied["rules"] = $ruleFiles.Count
+Write-Host "  Copiado: $rulesDst ($($ruleFiles.Count) arquivos)" -ForegroundColor Green
+
 Write-Host ""
-Write-Host "========================================" -ForegroundColor Green
-Write-Host '  Instalacao concluida!' -ForegroundColor Green
-Write-Host "========================================" -ForegroundColor Green
+Write-Host "=======================================" -ForegroundColor Green
+Write-Host "  Instalacao concluida!" -ForegroundColor Green
+Write-Host "=======================================" -ForegroundColor Green
 Write-Host ""
-Write-Host 'Opcoes disponiveis:' -ForegroundColor Gray
-Write-Host '  .\install.ps1              - Instalar (symlinks, requer Admin)' -ForegroundColor Gray
-Write-Host '  .\install.ps1 -Copy        - Instalar (copia, sem Admin)' -ForegroundColor Gray
-Write-Host '  .\install.ps1 -Force       - Reinstalar (backup do existente)' -ForegroundColor Gray
-Write-Host '  .\install.ps1 -Uninstall   - Remover instalacao' -ForegroundColor Gray
+Write-Host "Resumo de arquivos copiados:" -ForegroundColor Cyan
+Write-Host "  rules:    $($totalCopied['rules'])" -ForegroundColor White
+Write-Host "  skills:   $($totalCopied['skills'])" -ForegroundColor White
+Write-Host "  commands: $($totalCopied['commands'])" -ForegroundColor White
+Write-Host "  agents:   $($totalCopied['agents'])" -ForegroundColor White
 Write-Host ""
-Write-Host 'Para atualizar (symlinks): git pull' -ForegroundColor Cyan
-Write-Host 'Para atualizar (copia):    git pull; .\install.ps1 -Copy -Force' -ForegroundColor Cyan
+Write-Host "Opcoes disponiveis:" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -ProjectPath <caminho>          - Instalar no projeto" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -ProjectPath <caminho> -Force   - Reinstalar (backup do existente)" -ForegroundColor Gray
+Write-Host "  .\install.ps1 -ProjectPath <caminho> -Uninstall - Remover instalacao" -ForegroundColor Gray
+Write-Host ""
+Write-Host "Para atualizar: git pull && .\install.ps1 -ProjectPath <caminho> -Force" -ForegroundColor Cyan

@@ -1,0 +1,48 @@
+---
+description: Aplique SEMPRE que houver alteração de código, deploy, ou qualquer interação com o ambiente de produção.
+globs:
+alwaysApply: true
+---
+
+# Deploy via Dokploy
+
+O deploy é 100% automatizado pelo Dokploy, que monitora o repositório GitHub e reconstrói o container Docker a cada push.
+
+## Fluxo único de deploy
+
+```
+Alterar código → git add . → git commit -m "..." → git push → Dokploy reconstrói automaticamente
+```
+
+Não existe outro caminho. Toda alteração só chega à produção via push ao GitHub.
+
+## Regras
+
+- Após qualquer alteração de código, SEMPRE execute git add, commit e push antes de considerar a tarefa concluída.
+- NUNCA modifique o ambiente de produção diretamente (SSH, docker exec, edição de volumes, comandos no servidor). Toda mudança deve passar pelo repositório.
+- Dockerfile e docker-compose.yml devem estar no repositório e atualizados.
+- Variáveis sensíveis ficam no painel do Dokploy, nunca no repositório.
+
+## Exemplos
+
+CORRETO — Atualizar uma dependência:
+```bash
+# 1. Alterar package.json ou requirements.txt
+# 2. Commitar e enviar
+git add .
+git commit -m "chore: atualizar dependência"
+git push
+# Dokploy faz o redeploy automaticamente
+```
+
+ERRADO — Instalar algo direto no container:
+```bash
+# NÃO FAÇA ISSO — a mudança se perde no próximo deploy
+docker exec -it container_name pip install nova-lib
+```
+
+ERRADO — Alterar código e não fazer push:
+```bash
+# Editar arquivos e esquecer de commitar
+# O sistema em produção continua com a versão antiga
+```

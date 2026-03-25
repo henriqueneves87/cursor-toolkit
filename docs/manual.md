@@ -15,24 +15,38 @@ O AI Coding Toolkit é um conjunto de **commands, skills, rules e agents** que t
 
 ### Cursor
 
-1. Clone o repositório na máquina:
+1. Clone o repositório:
    ```bash
    git clone https://github.com/henriqueneves87/ai-coding-toolkit.git
    ```
-2. **Rules** — vá em **Settings → Cursor Settings → Rules** e adicione como User Rules:
-   - `rules/ai-conventions-compact.md` — postura, tarefas, commits
-   - `rules/skills-auto-apply.md` — triggers automáticos
-   - `rules/project-specific-template.md` — copie e adapte por projeto
-3. **Skills** — copie a pasta `skills/` para `~/.cursor/skills/` (global) ou `.cursor/skills/` no projeto:
+2. Instale no projeto destino:
    ```powershell
-   # Global (vale para todos os projetos)
-   Copy-Item -Recurse skills\* "$env:USERPROFILE\.cursor\skills\" -Force
+   # Windows
+   .\install.ps1 -ProjectPath "C:\caminho\do\seu\projeto"
+
+   # Linux/Mac
+   chmod +x install.sh
+   ./install.sh --project-path /caminho/do/seu/projeto
    ```
-4. **Commands** — copie a pasta `commands/` para `.cursor/commands/` no projeto:
-   ```powershell
-   Copy-Item -Recurse commands\* ".cursor\commands\" -Force
-   ```
-   Os commands ficam disponíveis via `/` no chat do Cursor.
+   O instalador copia rules (`.mdc`), skills, commands e agents para `.cursor/` dentro do projeto. Skills e commands ficam disponíveis automaticamente no Cursor.
+
+3. (Opcional) Adicione `.cursor/` ao `.gitignore` do projeto se não quiser versionar as rules junto com o código.
+
+**Opções do instalador:**
+
+| Opção | Descrição |
+|-------|-----------|
+| `-ProjectPath` / `--project-path` | **(obrigatório)** Caminho do projeto destino |
+| `-Force` / `--force` | Reinstala com backup do existente |
+| `-Uninstall` / `--uninstall` | Remove `.cursor/` do projeto |
+
+**Para atualizar:**
+```bash
+cd ai-coding-toolkit
+git pull
+.\install.ps1 -ProjectPath "C:\caminho\do\projeto" -Force    # Windows
+./install.sh --project-path /caminho/do/projeto --force       # Linux/Mac
+```
 
 ### Windsurf
 

@@ -66,83 +66,59 @@ Coleção de **skills**, **commands**, **agents** e **rules** para o [Cursor IDE
 | `context-migration-agent` | Migração safety-first com rollback |
 | `context-refactor-agent` | Refatoração incremental com validação |
 
-### Rules (3)
+### Rules (6 `.mdc`)
 
-| Rule | Escopo |
-|------|--------|
-| `ai-conventions-compact.md` | Postura, tarefas, commits, segurança |
-| `skills-auto-apply.md` | Tabela de triggers + lista de agents |
-| `project-specific-template.md` | Template para regras específicas do projeto |
+| Rule | `alwaysApply` | Escopo |
+|------|:---:|--------|
+| `ai-conventions-compact.mdc` | ✓ | Postura, tarefas, commits, segurança |
+| `skills-auto-apply.mdc` | ✓ | Tabela de triggers + lista de agents |
+| `model-routing.mdc` | ✓ | Roteamento de modelo por complexidade |
+| `dokploy-deploy.mdc` | ✓ | Fluxo de deploy via Dokploy/GitHub |
+| `model-routing-reference.mdc` | — | Tabela de preços (consulta sob demanda) |
+| `project-specific-template.mdc` | — | Template para regras específicas do projeto (não instalado automaticamente) |
 
 ---
 
 ## Instalação
 
-### Cursor
+1. Clone o toolkit:
 
-O repositório segue o formato **single plugin** (`.cursor-plugin/plugin.json`) do Cursor. Hoje a UI de Plugins exibe apenas o Marketplace — não há opção para adicionar repositório local como usuário individual. Use a instalação via symlinks:
+   ```bash
+   git clone https://github.com/henriqueneves87/ai-coding-toolkit.git
+   ```
 
-**Instalação via symlinks (recomendado):**
+2. Instale no seu projeto:
 
-```bash
-git clone https://github.com/henriqueneves87/ai-coding-toolkit.git
-```
+   ```powershell
+   # Windows
+   .\install.ps1 -ProjectPath "C:\caminho\do\seu\projeto"
 
-**Rules** — vá em **Settings → Cursor Settings → Rules** e adicione como User Rules:
-- `rules/ai-conventions-compact.md`
-- `rules/skills-auto-apply.md`
-- `rules/project-specific-template.md` (copie e adapte por projeto)
+   # Linux/Mac
+   chmod +x install.sh
+   ./install.sh --project-path /caminho/do/seu/projeto
+   ```
 
-**Skills** — copie para `~/.cursor/skills/`:
+   Isso copia rules (`.mdc`), skills, commands e agents para `.cursor/` dentro do projeto.
 
-```powershell
-Copy-Item -Recurse skills\* "$env:USERPROFILE\.cursor\skills\" -Force
-```
-
-**Commands** — copie para `.cursor/commands/` no projeto:
-
-```powershell
-Copy-Item -Recurse commands\* ".cursor\commands\" -Force
-```
-
-Ou use o instalador:
-
-```powershell
-# Windows
-.\install.ps1
-
-# Linux/Mac
-chmod +x install.sh && ./install.sh
-```
+3. (Opcional) Adicione `.cursor/` ao `.gitignore` do projeto se não quiser versionar as rules do toolkit junto com o código.
 
 ---
 
-## Opções do instalador (Cursor)
+## Opções do instalador
 
 | Opção | Descrição |
 |-------|-----------|
-| (padrão) | Cria symlinks — atualização automática via `git pull` |
-| `-Copy` / `--copy` | Copia arquivos — não requer Admin no Windows |
+| `-ProjectPath` / `--project-path` | **(obrigatório)** Caminho do projeto destino |
 | `-Force` / `--force` | Reinstala com backup do existente |
-| `-Uninstall` / `--uninstall` | Remove a instalação |
-
----
+| `-Uninstall` / `--uninstall` | Remove `.cursor/` do projeto |
 
 ## Atualização
-
-**Symlinks (padrão):**
 
 ```bash
 cd ai-coding-toolkit
 git pull
-```
-
-**Cópia:**
-
-```bash
-git pull
-.\install.ps1 -Copy -Force    # Windows
-./install.sh --copy --force    # Linux/Mac
+.\install.ps1 -ProjectPath "C:\caminho\do\projeto" -Force    # Windows
+./install.sh --project-path /caminho/do/projeto --force       # Linux/Mac
 ```
 
 ---
@@ -173,8 +149,8 @@ Consulte `docs/manual.md` seção 8 para fundamento anti-vibecoding.
 ```
 ai-coding-toolkit/
 ├── README.md
-├── install.ps1              # Instalador Windows (Cursor)
-├── install.sh               # Instalador Linux/Mac (Cursor)
+├── install.ps1              # Instalador Windows
+├── install.sh               # Instalador Linux/Mac
 ├── docs/
 │   └── manual.md            # Documentação completa
 ├── skills/                  # 9 ativos + 5 infra
@@ -214,10 +190,13 @@ ai-coding-toolkit/
 │   ├── context-feature-agent.md
 │   ├── context-migration-agent.md
 │   └── context-refactor-agent.md
-├── rules/                   # 3 rules
-│   ├── ai-conventions-compact.md
-│   ├── skills-auto-apply.md
-│   └── project-specific-template.md
+├── rules/                   # 6 rules (.mdc)
+│   ├── ai-conventions-compact.mdc       # alwaysApply
+│   ├── skills-auto-apply.mdc            # alwaysApply
+│   ├── model-routing.mdc                # alwaysApply
+│   ├── dokploy-deploy.mdc               # alwaysApply
+│   ├── model-routing-reference.mdc      # sob demanda
+│   └── project-specific-template.mdc   # template (não instalado auto)
 └── templates/               # Pre-commit + CI
     ├── .pre-commit-config.yaml
     └── .github/workflows/ci.yml
