@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference = "Stop"
 $installer = Join-Path $PSScriptRoot "install.ps1"
 
-# Lista de projetos — adicione novos projetos aqui
+# Lista de projetos - adicione novos projetos aqui
 $projects = @(
     "C:\Python\hn_erp",
     "C:\Python\saphiro_info",
@@ -27,7 +27,7 @@ $projects = @(
 Write-Host ""
 Write-Host "cursor-toolkit - Atualizacao em massa" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
-if ($DryRun) { Write-Host "  MODO DRY-RUN — nenhuma alteracao sera feita" -ForegroundColor Yellow }
+if ($DryRun) { Write-Host "  MODO DRY-RUN - nenhuma alteracao sera feita" -ForegroundColor Yellow }
 Write-Host ""
 
 $results = @()
